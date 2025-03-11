@@ -33,7 +33,7 @@ export default function RootLayout({ children }) {
           <LocationProvider>
             <ForgotPassEmailProvider>
               <SocketProvider>
-                <Protected>
+                <Protected role="staff">
                   {children}
 
                   <ToastContainer

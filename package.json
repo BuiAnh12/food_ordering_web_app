@@ -24,6 +24,7 @@
     "dotenv": "^16.4.7",
     "food-ordering-app": "file:",
     "formik": "^2.4.6",
+    "jsonwebtoken": "^9.0.2",
     "leaflet": "^1.9.4",
     "lodash": "^4.17.21",
     "lodash.debounce": "^4.0.8",

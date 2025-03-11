@@ -6,6 +6,7 @@ import { resetMessageState } from "../message/messageSlice";
 import { resetNotificationState } from "../notification/notificationSlice";
 import { resetUploadState } from "../upload/uploadSlice";
 import { userApi } from "../user/userApi";
+import jwt from "jsonwebtoken";
 import { resetUserState } from "../user/userSlice";
 
 export const authApi = apiSlice.injectEndpoints({
@@ -20,7 +21,7 @@ export const authApi = apiSlice.injectEndpoints({
     }),
     loginUser: builder.mutation({
       query: (data) => ({
-        url: "/auth/login",
+        url: "/auth/login?getRole=true",
         method: "POST",
         body: data,
         credentials: "include",
@@ -31,6 +32,8 @@ export const authApi = apiSlice.injectEndpoints({
           const userId = data._id;
           localStorage.setItem("userId", JSON.stringify(userId));
           localStorage.setItem("token", JSON.stringify(data.token));
+          console.log(jwt.decode(data.token))
+          localStorage.setItem("role", JSON.stringify(jwt.decode(data.token).role)) // haven't decode the jwt
           dispatch(userApi.endpoints.getCurrentUser.initiate(userId, { forceRefetch: true }));
         } catch (error) {
           console.error("Login error:", error);
@@ -85,22 +88,6 @@ export const authApi = apiSlice.injectEndpoints({
       query: () => ({
         url: "/auth/refresh",
         method: "GET",
-        credentials: "include",
-      }),
-    }),
-    forgotPassword: builder.mutation({
-      query: (data) => ({
-        url: "/auth/forgot-password",
-        method: "POST",
-        body: data,
-        credentials: "include",
-      }),
-    }),
-    checkOTP: builder.mutation({
-      query: (data) => ({
-        url: `/auth/check-otp`,
-        method: "POST",
-        body: data,
         credentials: "include",
       }),
     }),
