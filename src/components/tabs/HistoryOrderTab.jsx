@@ -16,7 +16,7 @@ const OrderCard = ({ order }) => {
         <div className="flex justify-between items-center mb-2">
           <div className="flex items-center">
             <div className="text-sm text-gray-700">
-              <Link href={`orders/${order.id}/history`} className="text-gray-700 text-md font-bold">
+              <Link href={`orders/${order._id}/history`} className="text-gray-700 text-md font-bold">
                 {order.user}
               </Link>
               <p className="text-sm text-gray-400 text-light">{order.id}</p>

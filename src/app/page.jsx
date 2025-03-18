@@ -24,7 +24,7 @@ export default function Home() {
 
     // Nếu không phải mobile, điều hướng đến trang home
     if (window.innerWidth > 768) {
-      router.push("/auth/login");
+      router.push("/home");
     }
 
     // Dọn dẹp sự kiện khi component unmount

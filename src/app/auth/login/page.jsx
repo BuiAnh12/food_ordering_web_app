@@ -9,16 +9,29 @@ import * as yup from "yup";
 import { useFormik } from "formik";
 import { toast } from "react-toastify";
 import { GoogleOAuthProvider, GoogleLogin } from "@react-oauth/google";
-import { useLoginUserMutation, useLoginWithGoogleMutation } from "../../../redux/features/auth/authApi";
+import { useLoginUserMutation, useLoginWithGoogleMutation, useGetOwnStoreMutation } from "../../../redux/features/auth/authApi";
 
 const page = () => {
   const router = useRouter();
-
+  const [getOwnStore] = useGetOwnStoreMutation();
   const [showPass, setShowPass] = useState(false);
 
+  const [isLogin, setIsLogin] = useState(true)
+  const [store, setStore] = useState(null);
   const [loginUser, { isSuccess: loginSuccess, error: loginError }] = useLoginUserMutation();
   const [loginWithGoogle, { isSuccess: loginWithGoogleSuccess, error: loginWithGoogleError }] =
     useLoginWithGoogleMutation();
+
+  useEffect(() => {
+    const userId = localStorage.getItem("userId");
+    const token = localStorage.getItem("token");
+    if (userId && token) {
+      router.push("/home");
+    }
+    else{
+      setIsLogin(false);
+    }
+  },[])
 
   useEffect(() => {
     if (loginSuccess) {
@@ -61,11 +74,16 @@ const page = () => {
     validationSchema: schema,
     onSubmit: async (values) => {
       await loginUser(values);
+      const { data } = await getOwnStore().unwrap();
+      if (data) {
+        localStorage.setItem("store", JSON.stringify(data));
+      }
       formik.resetForm();
     },
   });
 
   return (
+    !isLogin ?
     <div className='md:bg-[#f9f9f9] md:pt-[110px]'>
       <div className='bg-[#fff] lg:w-[60%] md:w-[80%] md:mx-auto md:border md:border-[#a3a3a3a3] md:border-solid md:rounded-[10px] md:shadow-[rgba(0,0,0,0.24)_0px_3px_8px] md:overflow-hidden'>
         <div className='flex flex-col items-center justify-between py-[50px] h-screen md:h-full'>
@@ -206,7 +224,7 @@ const page = () => {
           </p> */}
         </div>
       </div>
-    </div>
+    </div> : <></>
   );
 };
 

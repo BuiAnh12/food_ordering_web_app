@@ -1,5 +1,4 @@
 import { apiSlice } from "../api/apiSlice";
-import { resetCartState } from "../cart/cartSlice";
 import { resetChatState } from "../chat/chatSlice";
 import { resetLocationState } from "../location/locationSlice";
 import { resetMessageState } from "../message/messageSlice";
@@ -75,10 +74,10 @@ export const authApi = apiSlice.injectEndpoints({
           dispatch(resetMessageState());
           dispatch(resetChatState());
           dispatch(resetLocationState());
-          dispatch(resetCartState());
-
+          
           localStorage.removeItem("userId");
           localStorage.removeItem("token");
+          localStorage.removeItem("role")
         } catch (error) {
           console.error("Logout error:", error);
         }
@@ -107,6 +106,13 @@ export const authApi = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+    getOwnStore: builder.mutation({
+      query: () => ({
+        url: `/auth/store`,
+        method: "POST",
+        credentials: "include",
+      }),
+    }),
   }),
 });
 
@@ -120,4 +126,5 @@ export const {
   useCheckOTPMutation,
   useChangePasswordMutation,
   useResetPasswordMutation,
+  useGetOwnStoreMutation
 } = authApi;

@@ -11,8 +11,8 @@ const MobileHeader = ({ text }) => {
           <Image src='/assets/notification.png' alt='' layout='fill' objectFit='contain' />
         </Link>
 
-        <Link href='/carts' className='relative w-[30px] pt-[30px]'>
-          <Image src='/assets/cart.png' alt='' layout='fill' objectFit='contain' />
+        <Link href='/account' className='relative w-[30px] pt-[30px]'>
+          <Image src='/assets/account.png' alt='' layout='fill' objectFit='contain' />
         </Link>
       </div>
     </div>

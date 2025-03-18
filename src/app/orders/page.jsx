@@ -1,7 +1,7 @@
 'use client';
 
 import NavBar from "../../components/NavBar";
-import React from "react";
+import React, { useEffect, useState } from "react";
 import Header from "../../components/Header"
 import Tabs from "../../components/Tabs"
 import PreOrderTab from "../../components/tabs/PreOrderTab"
@@ -9,12 +9,34 @@ import LatestTab from "../../components/tabs/LatestOrderTab"
 import VerifyTab from "../../components/tabs/VerifyOrderTab"
 import HistoryTab from "../../components/tabs/HistoryOrderTab"
 const page = () => {
-  const tabData = [
-    { label: "Đặt trước", component: <PreOrderTab /> },
-    { label: "Mới", component: <LatestTab /> },
-    { label: "Đã xác nhận", component: <VerifyTab /> },
-    { label: "Lịch sử", component: <HistoryTab /> },
-  ];
+
+  const storeData = localStorage.getItem("store");
+  const [storeId, setStoreId] = useState(null)
+  const [tabData, setTabData] = useState([])
+
+  useEffect(()=>{
+    if (storeData) {
+      const store = JSON.parse(storeData);
+      console.log(store)
+      setStoreId(store?._id); 
+    } else {
+      console.log("No store data found in localStorage");
+    }
+  },[])
+
+  useEffect(()=>{
+    console.log(storeId)
+    setTabData(
+      [
+        { label: "Đặt trước", component: <PreOrderTab storeId={storeId}/> },
+        { label: "Mới", component: <LatestTab storeId={storeId}/> },
+        { label: "Đã xác nhận", component: <VerifyTab storeId={storeId}/> },
+        { label: "Lịch sử", component: <HistoryTab storeId={storeId}/> },
+      ]
+    )
+  },[storeId])
+
+  if (!storeId) return <p>Loading...</p>; 
   return (
     <>
 
