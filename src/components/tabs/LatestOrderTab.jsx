@@ -4,7 +4,10 @@ import { useRouter } from "next/navigation";
 import { useGetAllOrdersQuery } from "../../redux/features/order/orderApi";
 import ReactPaginate from "react-paginate";
 import generateOrderNumber from "../../utils/generateOrderNumber"
-const OrderCard = ({ order }) => {
+import { ThreeDots } from 'react-loader-spinner'
+
+
+const OrderCard = ({ order, orderIndex }) => {
   const [cartPrice, setCartPrice] = useState(0);
   const [cartQuantity, setCartQuantity] = useState(0);
   const router = useRouter();
@@ -34,13 +37,16 @@ const OrderCard = ({ order }) => {
     };
     fetchCartPrice();
   }, []);
+
+
   return (
     <div className="border rounded-lg shadow-md p-4 bg-[#FCF5F4] mb-4">
       {/* Order Header */}
       <div className="flex justify-between items-center mb-2">
         <div className="flex items-center">
           <div className="bg-[#fc6011] p-2 text-white font-bold text-lg w-auto h-10 flex items-center justify-center rounded-md">
-            {generateOrderNumber(order._id)}
+            {/* {generateOrderNumber(order._id)} orderIndex */}
+            {orderIndex}
           </div>
           <div className="ml-2 text-sm text-gray-700">
             <p className="font-medium text-gray-800">{order.user?.name}</p>
@@ -102,7 +108,18 @@ const LatestOrder = ({ storeId }) => {
     console.log(data);
   }, [data]);
   // Handle loading & error
-  if (isLoading) return <p className="text-center py-5">Loading...</p>;
+  if (isLoading) return <div className="flex justify-center items-center h-screen w-screen">
+    <ThreeDots
+      visible={true}
+      height="80"
+      width="80"
+      color="#fc6011"
+      radius="9"
+      ariaLabel="three-dots-loading"
+      wrapperStyle={{}}
+      wrapperClass=""
+    />
+  </div>
   if (error) return <p className="text-center py-5 text-red-500">Error loading orders</p>;
 
   const handlePageClick = (event) => {
@@ -110,17 +127,17 @@ const LatestOrder = ({ storeId }) => {
   };
 
 
- 
+
 
 
   return (
     <div className="w-full px-4 py-2">
       {orders.map((order, index) => (
-        <div
-          key={index}
-          className="bg-transparency flex flex-col"
-        >
-          <OrderCard order={order} />
+        <div key={index} className="bg-transparency flex flex-col">
+          <OrderCard
+            order={order}
+            orderIndex={(index + (currentPage - 1) * 10 + 1).toString().padStart(2, "0")} 
+          />
         </div>
       ))}
       {/* <div className="flex items-center justify-center w-full h-full mt-10">

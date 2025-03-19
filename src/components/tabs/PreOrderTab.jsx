@@ -9,7 +9,7 @@ import { format, isToday, isTomorrow } from "date-fns";
 import vi from "date-fns/locale/vi";
 import ReactPaginate from "react-paginate";
 import { useGetAllOrdersQuery } from "../../redux/features/order/orderApi";
-
+import { ThreeDots } from 'react-loader-spinner'
 const OrderCard = ({ order }) => {
   const [cartPrice, setCartPrice] = useState(0);
   const [cartQuantity, setCartQuantity] = useState(0);
@@ -103,7 +103,18 @@ const PreOrder = ({ storeId }) => {
   }, [data]);
 
   // Handle loading & error
-  if (isLoading) return <p className="text-center py-5">Loading...</p>;
+  if (isLoading) return <div className="flex justify-center items-center h-screen w-screen">
+        <ThreeDots
+          visible={true}
+          height="80"
+          width="80"
+          color="#fc6011"
+          radius="9"
+          ariaLabel="three-dots-loading"
+          wrapperStyle={{}}
+          wrapperClass=""
+        />
+      </div>
   if (error) return <p className="text-center py-5 text-red-500">Error loading orders</p>;
 
   const handlePageClick = (event) => {

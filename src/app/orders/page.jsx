@@ -8,35 +8,48 @@ import PreOrderTab from "../../components/tabs/PreOrderTab"
 import LatestTab from "../../components/tabs/LatestOrderTab"
 import VerifyTab from "../../components/tabs/VerifyOrderTab"
 import HistoryTab from "../../components/tabs/HistoryOrderTab"
+import { ThreeDots } from "react-loader-spinner";
 const page = () => {
 
   const storeData = localStorage.getItem("store");
   const [storeId, setStoreId] = useState(null)
   const [tabData, setTabData] = useState([])
 
-  useEffect(()=>{
+  useEffect(() => {
     if (storeData) {
       const store = JSON.parse(storeData);
       console.log(store)
-      setStoreId(store?._id); 
+      setStoreId(store?._id);
     } else {
       console.log("No store data found in localStorage");
     }
-  },[])
+  }, [])
 
-  useEffect(()=>{
+  useEffect(() => {
     console.log(storeId)
     setTabData(
       [
-        { label: "Đặt trước", component: <PreOrderTab storeId={storeId}/> },
-        { label: "Mới", component: <LatestTab storeId={storeId}/> },
-        { label: "Đã xác nhận", component: <VerifyTab storeId={storeId}/> },
-        { label: "Lịch sử", component: <HistoryTab storeId={storeId}/> },
+        // { label: "Đặt trước", component: <PreOrderTab storeId={storeId} /> },
+        { label: "Mới", component: <LatestTab storeId={storeId} /> },
+        { label: "Đã xác nhận", component: <VerifyTab storeId={storeId} /> },
+        { label: "Lịch sử", component: <HistoryTab storeId={storeId} /> },
       ]
     )
-  },[storeId])
+  }, [storeId])
 
-  if (!storeId) return <p>Loading...</p>; 
+  if (!storeId)
+    return <div className="flex justify-center items-center h-screen w-screen">
+      <ThreeDots
+        visible={true}
+        height="80"
+        width="80"
+        color="#fc6011"
+        radius="9"
+        ariaLabel="three-dots-loading"
+        wrapperStyle={{}}
+        wrapperClass=""
+      />
+    </div>
   return (
     <>
 
