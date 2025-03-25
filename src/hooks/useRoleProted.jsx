@@ -1,20 +1,23 @@
 "use client";
-import { useEffect } from "react";
+import { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import useRoleAuth from "../hooks/useRoleAuth";
-import useUserAuth from "./useUserAuth";
 
 export default function Protected({ role, children }) {
+  const [checkingAuth, setCheckingAuth] = useState(true); // Prevents early redirect
   const isAuthenticated = useRoleAuth(role);
   const router = useRouter();
 
   useEffect(() => {
-    if (!isAuthenticated) {
-       router.replace("/unauthorize"); // Redirect before rendering content
+    if (isAuthenticated !== null) {
+      setCheckingAuth(false);
+      if (!isAuthenticated) {
+        router.replace("/unauthorize");
+      }
     }
   }, [isAuthenticated, router]);
 
-  if (!isAuthenticated) return null; // Prevent flashing content
+  if (checkingAuth) return null; // Prevent rendering until authentication is checked
 
   return children;
 }

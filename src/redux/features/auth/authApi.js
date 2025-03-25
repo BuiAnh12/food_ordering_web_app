@@ -32,7 +32,7 @@ export const authApi = apiSlice.injectEndpoints({
           localStorage.setItem("userId", JSON.stringify(userId));
           localStorage.setItem("token", JSON.stringify(data.token));
           console.log(jwt.decode(data.token))
-          localStorage.setItem("role", JSON.stringify(jwt.decode(data.token).role)) // haven't decode the jwt
+          localStorage.setItem("role", JSON.stringify(data.role))
           dispatch(userApi.endpoints.getCurrentUser.initiate(userId, { forceRefetch: true }));
         } catch (error) {
           console.error("Login error:", error);

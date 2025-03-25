@@ -7,7 +7,7 @@ const UnauthorizedPage = () => {
             You do not have permission to access this page.
           </p>
           <a
-            href="/"
+            href="/home"
             className="mt-6 inline-block px-6 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition"
           >
             Go to Home

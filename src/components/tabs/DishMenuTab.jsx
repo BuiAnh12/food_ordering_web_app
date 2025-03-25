@@ -11,10 +11,16 @@ import { CSS } from "@dnd-kit/utilities";
 import LabelWithIcon from "../../components/LableWithIcon";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
+import { useGetAllDishQuery } from "../../redux/features/dish/dishApi"
+import { transformToMenuFormat, transformToApiFormat } from "../../utils/dishes"
 
 const DishTab = () => {
     const router = useRouter();
     const [changePos, setChangePos] = useState(false);
+    const storeData = localStorage.getItem("store");
+    const storeId = JSON.parse(storeData)._id;
+    const { data, isLoading, error } = useGetAllDishQuery(storeId)
+
     const [menu, setMenu] = useState([
         {
             category: "Thẻ Mới Ngon",
@@ -34,10 +40,22 @@ const DishTab = () => {
         },
     ]);
 
+
+    useEffect(() => {
+        if (data) {
+            const newData = transformToMenuFormat(data)
+            setMenu(newData);
+        }
+    }, [data])
+
     // Debugging
     useEffect(() => {
         console.log(menu);
     }, [menu]);
+
+    if (isLoading) return <p>Loading...</p>;
+    if (error) return <p>Error loading order details</p>;
+
 
     // ✅ Fix: Correctly update `menu` state instead of using `setItems`
     const toggleItemEnabled = (id) => {
@@ -82,7 +100,7 @@ const DishTab = () => {
             <div className="flex justify-between items-center border-b pb-2 mx-4">
                 <LabelWithIcon title="Vị trí" iconPath="/assets/menu.png" onClick={toggleChangePos} />
                 <LabelWithIcon title="Thêm" iconPath="/assets/plus.png" onClick={() => router.push("menu/add")} />
-                <LabelWithIcon title="Chỉnh sửa danh mục" iconPath="/assets/editing.png" onClick={() => router.push("menu/category")}/>
+                <LabelWithIcon title="Chỉnh sửa danh mục" iconPath="/assets/editing.png" onClick={() => router.push("menu/category")} />
             </div>
 
             {/* Render categories */}
@@ -125,7 +143,7 @@ const SortableItem = ({ item, changePos, router, toggleItemEnabled }) => {
             className="flex items-center justify-between bg-white p-3 rounded-md shadow-md cursor-grab my-2"
         >
             {/* Left Section: Image and Name */}
-            <div className="flex items-center space-x-3" onClick={() => router.push(`menu/${item.id}/detail`)}>
+            <div className="flex items-center space-x-3" onClick={() => router.push(`menu/${item.id}`)}>
                 {changePos && <Image src="/assets/menu.png" alt="Drag" width={20} height={20} />}
                 <Image src={item.image} alt={item.name} width={40} height={40} className="rounded-md" />
                 <div>
