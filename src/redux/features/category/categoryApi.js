@@ -9,15 +9,25 @@ export const categoryApi = apiSlice.injectEndpoints({
         if (page) params.append("page", page);
 
         return {
-          url: `store/${storeId}/category?${params.toString()}`, // Correct endpoint for categories
+          url: `store/${storeId}/category?${params.toString()}`,
           method: "GET",
           credentials: "include",
         };
       },
-      keepUnusedDataFor: 0, // Optional: Clear cache immediately when unused
-      refetchOnMountOrArgChange: true, // Ensures refetch on component mount
+      keepUnusedDataFor: 0,
+      refetchOnMountOrArgChange: true,
+    }),
+
+    createCategory: builder.mutation({
+      query: ({ storeId, name }) => ({
+        url: `store/${storeId}/category/add`,
+        method: "POST",
+        body: { name },
+        credentials: "include",
+      }),
+      invalidatesTags: ["Category"], // Ensures cache refresh after adding a new category
     }),
   }),
 });
 
-export const { useGetAllCategoriesQuery } = categoryApi;
+export const { useGetAllCategoriesQuery, useCreateCategoryMutation } = categoryApi;
