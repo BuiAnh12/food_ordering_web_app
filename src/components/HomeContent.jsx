@@ -6,10 +6,8 @@ const icons = [
   { href: "/menu", src: "/assets/user.png", label: "Thực đơn" },
   // { href: "/page3", src: "/assets/user.png", label: "Đánh giá" },
   // { href: "/page4", src: "/assets/user.png", label: "Báo cáo" },
-  { href: "/account", src: "/assets/user.png", label: "Thông tin cửa hàng" },
-  { href: "/page5", src: "/assets/user.png", label: "Chất lượng dịch vụ" },
+  { href: "/store", src: "/assets/user.png", label: "Thông tin cửa hàng" },
   { href: "/staffs", src: "/assets/user.png", label: "Quản lý nhân viên" },
-  { href: "/page8", src: "/assets/user.png", label: "Trung tâm trợ giúp" },
 ];
 
 const HomeContent = () => {

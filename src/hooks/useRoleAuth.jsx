@@ -19,7 +19,7 @@ export default function useRoleAuth(requiredRole) {
         role = [];
       }
 
-      if (userId && token && role.includes(requiredRole)) {
+      if (userId && token && role.includes(requiredRole) || role.includes("manager")) {
         setIsAuthenticated(true);
       } else {
         setIsAuthenticated(false);

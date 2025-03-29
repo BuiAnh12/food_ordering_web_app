@@ -92,13 +92,11 @@ const DishTab = () => {
         });
     };
 
-    const toggleChangePos = () => setChangePos((prev) => !prev);
 
     return (
         <div className="w-full p-4">
             {/* Tabs Header */}
             <div className="flex justify-between items-center border-b pb-2 mx-4">
-                <LabelWithIcon title="Vị trí" iconPath="/assets/menu.png" onClick={toggleChangePos} />
                 <LabelWithIcon title="Thêm" iconPath="/assets/plus.png" onClick={() => router.push("menu/add")} />
                 <LabelWithIcon title="Chỉnh sửa danh mục" iconPath="/assets/editing.png" onClick={() => router.push("menu/category")} />
             </div>

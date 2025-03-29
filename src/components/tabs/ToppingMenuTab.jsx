@@ -1,43 +1,55 @@
 "use client";
+
 import React, { useState } from "react";
-import LabelWithIcon from "../../components/LableWithIcon";
 import { useRouter } from "next/navigation";
+import LabelWithIcon from "../../components/LableWithIcon";
 import Modal from "../Modal";
+import { useGetAllToppingQuery } from "../../redux/features/topping/toppingApi"; // Import API query hook
 
 const ToppingMenuTab = () => {
     const router = useRouter();
-    const [toppingGroups, setToppingGroups] = useState([
-        { id: "1", name: "Loại Topping 1", toppings: [{ id: "101" }, { id: "102" }, { id: "103" }] },
-        { id: "2", name: "Loại Topping 2", toppings: [{ id: "201" }, { id: "202" }] },
-        { id: "3", name: "Loại Topping 3", toppings: [{ id: "301" }, { id: "302" }, { id: "303" }, { id: "304" }] },
-        { id: "4", name: "Loại Topping 4", toppings: [{ id: "401" }] },
-    ]);
+    const storeData = localStorage.getItem("store");
+    const storeId = JSON.parse(storeData)._id;
+    // Fetch topping groups from API
+    const { data, error, isLoading } = useGetAllToppingQuery({ storeId, limit: 10, page: 1 });
 
+    // Extract actual topping groups array
+    const toppingGroups = data?.data || [];
 
+    // Local state for adding new groups
+    const [newGroups, setNewGroups] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newGroupName, setNewGroupName] = useState("");
 
-
     const handleAddGroup = () => {
         if (!newGroupName.trim()) return; // Prevent empty names
+
         const newGroup = {
-            id: Date.now().toString(), // Generate unique ID
+            _id: Date.now().toString(), // Generate a temporary unique ID
             name: newGroupName,
             toppings: [],
         };
-        setToppingGroups([...toppingGroups, newGroup]);
-        setNewGroupName(""); // Clear input
-        setIsModalOpen(false); // Close modal
+
+        setNewGroups([...newGroups, newGroup]); // Add to local state
+        setNewGroupName("");
+        setIsModalOpen(false);
     };
+
+    if (isLoading) return <p className="p-4">Loading toppings...</p>;
+    if (error) return <p className="p-4 text-red-500">Error loading toppings!</p>;
+
+    // Combine API data with locally added groups
+    const allGroups = [...toppingGroups, ...newGroups];
 
     return (
         <div className="w-full p-4">
-            <Modal 
-                open={isModalOpen} 
-                onClose={() => setIsModalOpen(false)} 
-                onConfirm={handleAddGroup} 
-                title="Thêm Nhóm Topping" 
-                confirmTitle="Lưu" 
+            {/* Modal for adding a new topping group */}
+            <Modal
+                open={isModalOpen}
+                onClose={() => setIsModalOpen(false)}
+                onConfirm={handleAddGroup}
+                title="Thêm Nhóm Topping"
+                confirmTitle="Lưu"
                 closeTitle="Hủy"
             >
                 <input
@@ -50,21 +62,27 @@ const ToppingMenuTab = () => {
                 />
             </Modal>
 
+            {/* Add new topping group button */}
             <div className="flex justify-between items-center border-b pb-2 mx-3">
                 <LabelWithIcon title="Thêm nhóm" iconPath="/assets/plus.png" onClick={() => setIsModalOpen(true)} />
             </div>
 
+            {/* Display topping groups */}
             <div className="mt-6">
-                {toppingGroups.map((group) => (
-                    <div 
-                        key={group.id} 
-                        className="flex justify-between items-center bg-white p-3 rounded-md shadow-md cursor-pointer my-2 hover:bg-gray-100"
-                        onClick={() => router.push(`menu/topping/${group.id}/detail`)}
-                    >
-                        <p className="font-semibold">{group.name}</p>
-                        <p className="text-gray-500">{group.toppings.length} toppings</p>
-                    </div>
-                ))}
+                {allGroups.length === 0 ? (
+                    <p className="text-gray-500 text-center">Không có nhóm topping nào.</p>
+                ) : (
+                    allGroups.map((group) => (
+                        <div
+                            key={group._id} // Use `_id` from API
+                            className="flex justify-between items-center bg-white p-3 rounded-md shadow-md cursor-pointer my-2 hover:bg-gray-100"
+                            onClick={() => router.push(`menu/topping/${group._id}`)}
+                        >
+                            <p className="font-semibold">{group.name}</p>
+                            <p className="text-gray-500">{group.toppings.length} toppings</p>
+                        </div>
+                    ))
+                )}
             </div>
         </div>
     );

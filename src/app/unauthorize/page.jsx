@@ -12,6 +12,12 @@ const UnauthorizedPage = () => {
           >
             Go to Home
           </a>
+          <a
+            href="/auth/login"
+            className="mt-6 inline-block px-6 py-2 text-white bg-blue-500 rounded-lg hover:bg-blue-600 transition"
+          >
+            Go to Login
+          </a>
         </div>
       </div>
     );

@@ -179,16 +179,16 @@ const page = () => {
               Quên mật khẩu?
             </Link> */}
 
-            <div className="relative flex items-center w-[80%] my-6">
+            {/* <div className="relative flex items-center w-[80%] my-6">
               <div className="flex-grow border-black border-4 border-gray-500 h-full"></div>
               <span className="mx-4 text-gray-500 bg-white px-2 font-medium">Hoặc</span>
               <div className="flex-grow border-t-2 border-gray-500 h-1"></div>
-            </div>
+            </div> */}
 
 
 
 
-            <div className='relative flex items-center justify-center bg-[#347EC0] text-[#fff] w-[80%] h-[55px] p-[20px] rounded-full my-[10px] gap-[10px] cursor-pointer'>
+            {/* <div className='relative flex items-center justify-center bg-[#347EC0] text-[#fff] w-[80%] h-[55px] p-[20px] rounded-full my-[10px] gap-[10px] cursor-pointer'>
               <Image
                 src='/assets/facebook_logo.png'
                 alt=''
@@ -197,9 +197,9 @@ const page = () => {
                 className='absolute left-[20px] top-[50%] translate-y-[-50%]'
               />
               <button className='text-[18px]'>Đăng nhập bằng Facebook</button>
-            </div>
+            </div> */}
 
-            <div className='login-google__button w-[80%] rounded-full my-[10px] overflow-hidden cursor-pointer'>
+            {/* <div className='login-google__button w-[80%] rounded-full my-[10px] overflow-hidden cursor-pointer'>
               <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
                 <GoogleLogin
                   onSuccess={(credentialResponse) => {
@@ -213,13 +213,13 @@ const page = () => {
                   width='100%'
                 />
               </GoogleOAuthProvider>
-            </div>
+            </div> */}
           </div>
-
-          {/* <p className='text-[#636464] font-semibold mt-[20px]'>
-            Chưa có mật khẩu?{" "}
-            <Link href='/auth/register' className='text-[#fc6011] cursor-pointer'>
-              Đăng ký
+{/* 
+          <p className='text-[#636464] font-semibold mt-[20px]'>
+            Quên mật khẩu?{" "}
+            <Link href='/auth/forgot-password' className='text-[#fc6011] cursor-pointer'>
+              Lấy lại mật khẩu
             </Link>
           </p> */}
         </div>

@@ -25,9 +25,30 @@ export const categoryApi = apiSlice.injectEndpoints({
         body: { name },
         credentials: "include",
       }),
-      invalidatesTags: ["Category"], // Ensures cache refresh after adding a new category
+    }),
+
+    updateCategory: builder.mutation({
+      query: ({ categoryId, name }) => ({
+        url: `store/category/${categoryId}`,
+        method: "PUT",
+        body: { name },
+        credentials: "include",
+      }),
+    }),
+
+    deleteCategory: builder.mutation({
+      query: ({ categoryId }) => ({
+        url: `store/category/${categoryId}`,
+        method: "DELETE",
+        credentials: "include",
+      }),
     }),
   }),
 });
 
-export const { useGetAllCategoriesQuery, useCreateCategoryMutation } = categoryApi;
+export const {
+  useGetAllCategoriesQuery,
+  useCreateCategoryMutation,
+  useUpdateCategoryMutation,
+  useDeleteCategoryMutation,
+} = categoryApi;

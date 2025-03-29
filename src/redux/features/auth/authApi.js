@@ -90,6 +90,22 @@ export const authApi = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+    forgotPassword: builder.mutation({
+      query: (data) => ({
+        url: "/auth/forgot-password",
+        method: "POST",
+        body: data,
+        credentials: "include",
+      }),
+    }),
+    checkOTP: builder.mutation({
+      query: (data) => ({
+        url: `/auth/check-otp`,
+        method: "POST",
+        body: data,
+        credentials: "include",
+      }),
+    }),
     changePassword: builder.mutation({
       query: (data) => ({
         url: `/auth/change-password`,
@@ -111,6 +127,14 @@ export const authApi = apiSlice.injectEndpoints({
         url: `/auth/store`,
         method: "POST",
         credentials: "include",
+      }),
+    }),
+    changePassword: builder.mutation({
+      query: (passwordData) => ({
+        url: "/auth/change-password",
+        method: "PUT",
+        credentials: "include",
+        body: passwordData,
       }),
     }),
   }),

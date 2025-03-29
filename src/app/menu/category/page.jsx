@@ -5,11 +5,13 @@ import Image from "next/image";
 import React, { useState, useEffect } from "react";
 import Header from "../../../components/Header";
 import LabelWithIcon from "../../../components/LableWithIcon";
-import { DndContext, closestCenter } from "@dnd-kit/core";
-import { SortableContext, verticalListSortingStrategy, arrayMove, useSortable } from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities"; 
 import Modal from "../../../components/Modal";
-import { useGetAllCategoriesQuery, useCreateCategoryMutation } from "../../../redux/features/category/categoryApi";
+import {
+    useGetAllCategoriesQuery,
+    useCreateCategoryMutation,
+    useUpdateCategoryMutation,
+    useDeleteCategoryMutation,
+} from "../../../redux/features/category/categoryApi";
 import { useDispatch } from "react-redux";
 
 const Page = () => {
@@ -17,16 +19,19 @@ const Page = () => {
     const storeData = localStorage.getItem("store");
     const storeId = JSON.parse(storeData)?._id;
 
-    // Fetch categories from Redux
     const { data: categoryData, isLoading, error, refetch } = useGetAllCategoriesQuery({ storeId });
     const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
-    
+    const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
+    const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
+
     const [categories, setCategories] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
     const [categoryName, setCategoryName] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState(null);
 
     useEffect(() => {
-        refetch(); // Automatically refetch categories when the component mounts
+        refetch();
     }, [refetch]);
 
     useEffect(() => {
@@ -35,21 +40,7 @@ const Page = () => {
         }
     }, [categoryData]);
 
-    const handleDragEnd = (event) => {
-        const { active, over } = event;
-        if (!over || active.id === over.id) return;
-
-        setCategories((prevCategories) => {
-            const oldIndex = prevCategories.findIndex((item) => item._id === active.id);
-            const newIndex = prevCategories.findIndex((item) => item._id === over.id);
-            return arrayMove(prevCategories, oldIndex, newIndex).map((item, index) => ({
-                ...item,
-                displayOrder: index + 1,
-            }));
-        });
-    };
-
-    const handleSubmit = async (e) => {
+    const handleCreateCategory = async (e) => {
         e.preventDefault();
         if (!categoryName.trim()) return;
 
@@ -63,10 +54,47 @@ const Page = () => {
         }
     };
 
+    const handleUpdateCategory = async () => {
+        if (!categoryName.trim() || !selectedCategory) return;
+
+        try {
+            await updateCategory({ categoryId: selectedCategory._id, name: categoryName }).unwrap();
+            setIsModalOpen(false);
+            setCategoryName("");
+            setSelectedCategory(null);
+            await refetch();
+        } catch (err) {
+            console.error("Failed to update category:", err);
+        }
+    };
+
+    const handleDeleteCategory = async () => {
+        if (!selectedCategory) return;
+
+        try {
+            await deleteCategory({ categoryId: selectedCategory._id }).unwrap();
+            setIsDeleteModalOpen(false);
+            setSelectedCategory(null);
+            await refetch();
+        } catch (err) {
+            console.error("Failed to delete category:", err);
+        }
+    };
+
     return (
         <>
-            <Modal open={isModalOpen} onClose={() => setIsModalOpen(false)} onConfirm={handleSubmit} title="Thêm Danh Mục" confirmTitle={isCreating ? "Đang lưu..." : "Lưu"} closeTitle="Hủy">
-                <form onSubmit={handleSubmit}>
+            <Modal
+                open={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setSelectedCategory(null);
+                }}
+                onConfirm={selectedCategory ? handleUpdateCategory : handleCreateCategory}
+                title={selectedCategory ? "Cập nhật danh mục" : "Thêm danh mục"}
+                confirmTitle={isCreating || isUpdating ? "Đang lưu..." : "Lưu"}
+                closeTitle="Hủy"
+            >
+                <form onSubmit={selectedCategory ? handleUpdateCategory : handleCreateCategory}>
                     <input
                         type="text"
                         value={categoryName}
@@ -77,6 +105,18 @@ const Page = () => {
                     />
                 </form>
             </Modal>
+
+            <Modal
+                open={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleDeleteCategory}
+                title="Xác nhận xóa"
+                confirmTitle={isDeleting ? "Đang xóa..." : "Xóa"}
+                closeTitle="Hủy"
+            >
+                <p>Bạn có chắc chắn muốn xóa danh mục này?</p>
+            </Modal>
+
             <Header title="Chỉnh sửa danh mục" goBack={true} />
             <div className="flex justify-between items-center border-b pb-2 mx-4 mt-24">
                 <LabelWithIcon title="Thêm" iconPath="/assets/plus.png" onClick={() => setIsModalOpen(true)} />
@@ -87,15 +127,18 @@ const Page = () => {
                 ) : error ? (
                     <p className="text-center text-red-500">Lỗi khi tải danh mục</p>
                 ) : (
-                    <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                        <SortableContext items={categories.map((item) => item._id)} strategy={verticalListSortingStrategy}>
-                            <div className="bg-white rounded-md p-2">
-                                {categories.map((item) => (
-                                    <SortableItem key={item._id} item={item} />
-                                ))}
-                            </div>
-                        </SortableContext>
-                    </DndContext>
+                    <div className="bg-white rounded-md p-2">
+                        {categories.map((item) => (
+                            <CategoryItem key={item._id} item={item} onEdit={() => {
+                                setSelectedCategory(item);
+                                setCategoryName(item.name);
+                                setIsModalOpen(true);
+                            }} onDelete={() => {
+                                setSelectedCategory(item);
+                                setIsDeleteModalOpen(true);
+                            }} />
+                        ))}
+                    </div>
                 )}
             </div>
             <NavBar page="" />
@@ -103,26 +146,13 @@ const Page = () => {
     );
 };
 
-
-const SortableItem = ({ item }) => {
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item._id });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    };
-
+const CategoryItem = ({ item, onEdit, onDelete }) => {
     return (
-        <div
-            ref={setNodeRef}
-            {...attributes}
-            {...listeners}
-            style={style}
-            className="flex items-center justify-between bg-white p-3 rounded-md shadow-md cursor-grab my-2"
-        >
-            <div className="flex items-center space-x-3">
-                <Image src="/assets/menu.png" alt="Drag" width={20} height={20} />
-                <p className="font-semibold">{item.name}</p>
+        <div className="flex items-center justify-between bg-white p-3 rounded-md shadow-md my-2">
+            <p className="font-semibold">{item.name}</p>
+            <div className="flex space-x-2">
+                <button onClick={onEdit} className="text-blue-500">✏️</button>
+                <button onClick={onDelete} className="text-red-500">🗑️</button>
             </div>
         </div>
     );

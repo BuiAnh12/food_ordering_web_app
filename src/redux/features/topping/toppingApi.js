@@ -9,17 +9,58 @@ export const toppingApi = apiSlice.injectEndpoints({
         if (page) params.append("page", page);
 
         return {
-          url: `store/${storeId}/topping?${params.toString()}`, // Include storeId and query params
+          url: `store/${storeId}/topping?${params.toString()}`, // Fix lỗi template string
           method: "GET",
           credentials: "include",
         };
       },
-      keepUnusedDataFor: 0, // Optional: Clear cache immediately when unused
-      refetchOnMountOrArgChange: true, // Ensures refetch on component mount
+      keepUnusedDataFor: 0, 
+      refetchOnMountOrArgChange: true, 
+    }),
 
-    })
+    getTopping: builder.query({
+      query: ({ groupId }) => {
+        return {
+          url: `store/topping-group/${groupId}`, // Fix lỗi template string
+          method: "GET",
+          credentials: "include",
+        };
+      },
+      keepUnusedDataFor: 0, 
+      refetchOnMountOrArgChange: true, 
+    }),
+
+    addToppingToGroup: builder.mutation({
+      query: ({ groupId, name, price }) => ({
+        url: `store/topping-group/${groupId}/topping`,
+        method: "POST",
+        body: { name, price },
+        credentials: "include",
+      }),
+    }),
+
+    removeToppingFromGroup: builder.mutation({
+      query: ({ groupId, toppingId }) => ({
+        url: `store/topping-group/${groupId}/topping/${toppingId}`,
+        method: "DELETE",
+        credentials: "include",
+      }),
+    }),
+    updateTopping: builder.mutation({
+      query: ({ groupId, toppingId, name, price }) => ({
+        url: `store/topping-group/${groupId}/topping/${toppingId}`,
+        method: "PUT",
+        body: { name, price },
+        credentials: "include",
+      }),
+    }),
   }),
-  
 });
 
-export const { useGetAllToppingQuery} = toppingApi;
+export const { 
+  useGetAllToppingQuery, 
+  useGetToppingQuery, 
+  useAddToppingToGroupMutation,
+  useRemoveToppingFromGroupMutation,
+  useUpdateToppingMutation,
+} = toppingApi;

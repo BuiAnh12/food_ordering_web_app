@@ -47,11 +47,14 @@ const Header = ({ title, goBack }) => {
                         </DropdownMenuTrigger>
                         <DropdownMenuContent className="bg-white border rounded-lg shadow-md w-40 p-2 mt-2">
                             <DropdownMenuItem className="p-2 hover:bg-gray-100 cursor-pointer">
-                                <Link href="/account">Profile</Link>
+                                <Link href="/profile">Profile</Link>
                             </DropdownMenuItem>
                             <DropdownMenuItem
                                 className="p-2 hover:bg-gray-100 cursor-pointer text-red-500"
-                                onClick={() => logoutUser()}
+                                onClick={async () => {
+                                    await logoutUser()
+                                    router.push("auth/login")
+                                }}
                             >
                                 Logout
                             </DropdownMenuItem>
