@@ -18,7 +18,7 @@ export const staffApi = apiSlice.injectEndpoints({
      */
     getStaff: builder.query({
       query: ({ storeId, staffId }) => ({
-        url: `/store/${storeId}/${staffId}`,
+        url: `/store/${storeId}/staff/${staffId}`,
         method: "GET",
         credentials: "include",
       }),
