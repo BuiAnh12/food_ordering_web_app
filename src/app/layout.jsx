@@ -25,7 +25,7 @@ export default function RootLayout({ children }) {
   const pathname = usePathname(); // Get the current path
 
   // Define public routes that do NOT require authentication
-  const publicRoutes = ["/auth/login", "/auth/register", "/auth/forgot-password", "/auth/register", "/auth/reset-password"];
+  const publicRoutes = ["/auth/login", "/auth/register", "/auth/forgot-password", "/auth/register", "/auth/reset-password", '/auth/store-register'];
 
   // Check if the current path is public
   const isPublicRoute = publicRoutes.includes(pathname);
