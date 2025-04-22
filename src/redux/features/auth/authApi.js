@@ -137,6 +137,14 @@ export const authApi = apiSlice.injectEndpoints({
         body: passwordData,
       }),
     }),
+    registerStore: builder.mutation({
+      query: (data) => ({
+        url: "auth/register-store",
+        method: "POST",
+        credentials: "include",
+        body: data,
+      }),
+    })
   }),
 });
 
@@ -150,5 +158,6 @@ export const {
   useCheckOTPMutation,
   useChangePasswordMutation,
   useResetPasswordMutation,
-  useGetOwnStoreMutation
+  useGetOwnStoreMutation,
+  useRegisterStoreMutation,
 } = authApi;

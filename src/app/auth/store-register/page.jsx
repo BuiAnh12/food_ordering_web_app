@@ -8,6 +8,8 @@ import { jwtDecode } from "jwt-decode";
 import { useFormik } from "formik";
 import * as yup from "yup";
 import { useRouter } from 'next/navigation';
+import { useGetAllFoodTypeQuery } from "../../../redux/features/foodType/foodTypeApi";
+
 const StoreRegistrationPage = () => {
   const [currentStep, setCurrentStep] = useState(0);
   const [preview, setPreview] = useState({
@@ -18,8 +20,8 @@ const StoreRegistrationPage = () => {
     businessLicense: null,
     storePictures: [],
   });
-  const router = useRouter();
 
+  const router = useRouter();
   const [email, setEmail] = useState("");
   const [googleToken, setGoogleToken] = useState("");
   const schema = yup.object().shape({
@@ -30,6 +32,7 @@ const StoreRegistrationPage = () => {
       .required("Vui lòng xác nhận lại mật khẩu!"),
   });
 
+  const { data: foodTypes } = useGetAllFoodTypeQuery();
   const formik = useFormik({
     initialValues: {
       password: "",
@@ -76,7 +79,7 @@ const StoreRegistrationPage = () => {
   const [storeInfo, setStoreInfo] = useState({
     name: '',
     description: '',
-    category: '',
+    foodType: '', // updated from category
     address: '',
     latitude: null,
     longitude: null,
@@ -87,6 +90,7 @@ const StoreRegistrationPage = () => {
     businessLicense: null,
     storePictures: [],
   });
+
 
   useEffect(() => {
     if (navigator.geolocation) {
@@ -137,6 +141,21 @@ const StoreRegistrationPage = () => {
     setStoreInfo({ ...storeInfo, latitude: lat, longitude: lng });
   };
 
+  const formDataToJson = (formData) => {
+    const obj = {};
+    formData.forEach((value, key) => {
+      if (key.includes("[")) {
+        // handle arrays like storePictures[0], storePictures[1]
+        const baseKey = key.split("[")[0];
+        if (!obj[baseKey]) obj[baseKey] = [];
+        obj[baseKey].push(value);
+      } else {
+        obj[key] = value;
+      }
+    });
+    return obj;
+  };
+
   const handleSubmit = async (e) => {
     e.preventDefault();
 
@@ -150,11 +169,30 @@ const StoreRegistrationPage = () => {
         formData.append(key, value);
       }
     });
+    const jsonData = JSON.stringify(formDataToJson(formData));
 
     // Send formData via fetch or Axios here
+
+    console.log(jsonData)
     console.log('Form Submitted');
   };
+  const registerAccount = async () => {
+    const formData = new FormData();
+    Object.entries(storeInfo).forEach(([key, value]) => {
+      if (key === 'storePictures') {
+        value.forEach((file, index) => {
+          formData.append(`storePictures[${index}]`, file);
+        });
+      } else if (value !== null) {
+        formData.append(key, value);
+      }
+    });
+    const jsonData = JSON.stringify(formDataToJson(formData));
 
+
+    console.log(jsonData)
+    console.log('Form Submitted');
+  }
   const nextStep = () => setCurrentStep((prev) => prev + 1);
   const prevStep = () => setCurrentStep((prev) => prev - 1);
 
@@ -179,8 +217,8 @@ const StoreRegistrationPage = () => {
       >
         <Step label="Thông tin" />
         <Step label="Vị trí" />
-        <Step label="Tải ảnh" />
-        <Step label='Tài khoản' />
+        <Step label="Tài khoản" />
+        <Step label='Tải ảnh' />
       </Stepper>
 
 
@@ -195,10 +233,24 @@ const StoreRegistrationPage = () => {
               <label className="font-medium block mb-1">Mô tả</label>
               <input type="text" name="description" placeholder="Mô tả ngắn về cửa hàng" value={storeInfo.description} onChange={handleInputChange} className={inputClass} />
             </div>
-            <div>
-              <label className="font-medium block mb-1">Danh mục</label>
-              <input type="text" name="category" placeholder="Ví dụ: Đồ ăn nhanh, Cà phê..." value={storeInfo.category} onChange={handleInputChange} className={inputClass} />
+            <div className="mb-4">
+              <label className="block text-gray-700 mb-2" htmlFor="foodType">Loại món ăn</label>
+              <select
+                id="foodType"
+                name="foodType"
+                value={storeInfo.foodType}
+                onChange={handleInputChange}
+                className={inputClass}
+              >
+                <option value="">Chọn loại món ăn</option>
+                {foodTypes?.map((type) => (
+                  <option key={type._id} value={type._id}>
+                    {type.name}
+                  </option>
+                ))}
+              </select>
             </div>
+
             <div>
               <label className="font-medium block mb-1">Địa chỉ</label>
               <input type="text" name="address" placeholder="Số nhà, đường, quận/huyện..." value={storeInfo.address} onChange={handleInputChange} className={inputClass} />
@@ -217,81 +269,38 @@ const StoreRegistrationPage = () => {
           </div>
         )}
 
-
         {currentStep === 2 && (
-          <div className="grid grid-cols-1 gap-4 bg-gray-50 p-6 rounded-lg shadow">
-            <div>
-              <label className="font-medium block mb-1">Ảnh đại diện</label>
-              <input type="file" name="avatar" accept="image/*" onChange={handleFileChange} className={inputClass} />
-              {preview.avatar && (
-                <img src={preview.avatar} alt="Avatar Preview" className="mt-2 w-32 h-32 object-cover rounded-lg" />
-              )}
-            </div>
-
-            <div>
-              <label className="font-medium block mb-1">Ảnh bìa</label>
-              <input type="file" name="cover" accept="image/*" onChange={handleFileChange} className={inputClass} />
-              {preview.cover && (
-                <img src={preview.cover} alt="Cover Preview" className="mt-2 w-full h-40 object-cover rounded-lg" />
-              )}
-            </div>
-
-            <div>
-              <label className="font-medium block mb-1">CMND Mặt trước</label>
-              <input type="file" name="ICFront" onChange={handleFileChange} className={`${inputClass} mb-2`} />
-              {preview.ICFront && <img src={preview.ICFront} alt="CMND Mặt trước" className="mb-2 w-60 rounded" />}
-
-              <label className="font-medium block mb-1">CMND Mặt sau</label>
-              <input type="file" name="ICBack" onChange={handleFileChange} className={`${inputClass} mb-2`} />
-              {preview.ICBack && <img src={preview.ICBack} alt="CMND Mặt sau" className="mb-2 w-60 rounded" />}
-
-              <label className="font-medium block mb-1">Giấy phép kinh doanh</label>
-              <input type="file" name="businessLicense" onChange={handleFileChange} className={inputClass} />
-              {preview.businessLicense && <img src={preview.businessLicense} alt="Giấy phép KD" className="mt-2 w-40 rounded" />}
-            </div>
-            <div>
-              <label className="font-medium block mb-1">Ảnh cửa hàng</label>
-              <input type="file" name="storePictures" multiple onChange={handleImageUpload} className={inputClass} />
-              <div className="flex flex-wrap gap-2 mt-2">
-                {preview.storePictures.map((src, index) => (
-                  <img key={index} src={src} alt={`Ảnh cửa hàng ${index + 1}`} className="w-auto h-auto object-cover rounded" />
-                ))}
-              </div>
-            </div>
-          </div>
-
-        )}
-
-        {currentStep === 3 && (
           <div className="flex flex-col items-start justify-center min-h-[60vh]">
             <p className="mb-4 text-gray-600 w-full text-center">
               Hãy đăng nhập bằng Google để sử dụng email làm thông tin tài khoản và tạo mật khẩu.
             </p>
 
             {!email && (
-              <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
-                <GoogleLogin
-                  onSuccess={(credentialResponse) => {
-                    const token = credentialResponse.credential;
-                    const decoded = jwtDecode(token);
-                    const gmail = decoded?.email;
+              <div className='flex flex-col items-center justify-center w-full mt-6'>
+                <GoogleOAuthProvider clientId={process.env.NEXT_PUBLIC_GOOGLE_CLIENT_ID}>
+                  <GoogleLogin
+                    onSuccess={(credentialResponse) => {
+                      const token = credentialResponse.credential;
+                      const decoded = jwtDecode(token);
+                      const gmail = decoded?.email;
 
-                    if (!gmail) {
-                      toast.error("Không lấy được email từ tài khoản Google!");
-                      return;
-                    }
+                      if (!gmail) {
+                        toast.error("Không lấy được email từ tài khoản Google!");
+                        return;
+                      }
 
-                    setEmail(gmail);
-                    setGoogleToken(token);
-                    toast.success("Đăng nhập bằng Google thành công!");
-                  }}
-                  onError={() => {
-                    toast.error("Đăng nhập bằng Google thất bại!");
-                  }}
-                  shape="pill"
-                  width="100%"
-                />
-              </GoogleOAuthProvider>
+                      setEmail(gmail);
+                      setGoogleToken(token);
+                      toast.success("Đăng nhập bằng Google thành công!");
+                    }}
+                    onError={() => {
+                      toast.error("Đăng nhập bằng Google thất bại!");
+                    }}
+                    shape="pill"
+                    width="100%"
+                  />
+                </GoogleOAuthProvider>
+              </div>
             )}
 
             {email && (
@@ -346,6 +355,53 @@ const StoreRegistrationPage = () => {
         )}
 
 
+        {currentStep === 3 && (
+          <div className="grid grid-cols-1 gap-4 bg-gray-50 p-6 rounded-lg shadow">
+            <div>
+              <label className="font-medium block mb-1">Ảnh đại diện</label>
+              <input type="file" name="avatar" accept="image/*" onChange={handleFileChange} className={inputClass} />
+              {preview.avatar && (
+                <img src={preview.avatar} alt="Avatar Preview" className="mt-2 w-32 h-32 object-cover rounded-lg" />
+              )}
+            </div>
+
+            <div>
+              <label className="font-medium block mb-1">Ảnh bìa</label>
+              <input type="file" name="cover" accept="image/*" onChange={handleFileChange} className={inputClass} />
+              {preview.cover && (
+                <img src={preview.cover} alt="Cover Preview" className="mt-2 w-full h-40 object-cover rounded-lg" />
+              )}
+            </div>
+
+            <div>
+              <label className="font-medium block mb-1">CMND Mặt trước</label>
+              <input type="file" name="ICFront" onChange={handleFileChange} className={`${inputClass} mb-2`} />
+              {preview.ICFront && <img src={preview.ICFront} alt="CMND Mặt trước" className="mb-2 w-60 rounded" />}
+
+              <label className="font-medium block mb-1">CMND Mặt sau</label>
+              <input type="file" name="ICBack" onChange={handleFileChange} className={`${inputClass} mb-2`} />
+              {preview.ICBack && <img src={preview.ICBack} alt="CMND Mặt sau" className="mb-2 w-60 rounded" />}
+
+              <label className="font-medium block mb-1">Giấy phép kinh doanh</label>
+              <input type="file" name="businessLicense" onChange={handleFileChange} className={inputClass} />
+              {preview.businessLicense && <img src={preview.businessLicense} alt="Giấy phép KD" className="mt-2 w-40 rounded" />}
+            </div>
+            <div>
+              <label className="font-medium block mb-1">Ảnh cửa hàng</label>
+              <input type="file" name="storePictures" multiple onChange={handleImageUpload} className={inputClass} />
+              <div className="flex flex-wrap gap-2 mt-2">
+                {preview.storePictures.map((src, index) => (
+                  <img key={index} src={src} alt={`Ảnh cửa hàng ${index + 1}`} className="w-auto h-auto object-cover rounded" />
+                ))}
+              </div>
+            </div>
+          </div>
+
+        )}
+
+
+
+
 
         <div className="flex justify-between mt-8">
           {currentStep > 0 && (
@@ -353,7 +409,7 @@ const StoreRegistrationPage = () => {
               Quay lại
             </button>
           )}
-          {currentStep < 3 ? (
+          {currentStep < 2 ? (
             <button
               type="button"
               onClick={() => {
@@ -367,15 +423,32 @@ const StoreRegistrationPage = () => {
             >
               Tiếp theo
             </button>
-          ) : (
-            <button
-              className={`ml-auto px-4 py-2 text-white rounded ${formik.isValid && formik.dirty
+          ) : (currentStep = 2 ?
+            (
+              <button
+                type="button"
+                onClick={() => {
+                  if (validateStep()) {
+                    registerAccount();
+                  } else {
+                    toast.error('Vui lòng điền đầy đủ thông tin trước khi tiếp tục.');
+                  }
+                }}
+                className="ml-auto px-4 py-2 bg-blue-500 text-white rounded hover:bg-blue-600"
+              >
+                Đăng ký tài khoản
+              </button>
+            )
+            :
+            (
+              <button className={`ml-auto px-4 py-2 text-white rounded ${formik.isValid && formik.dirty
                 ? "bg-[#fc6011] cursor-pointer"
                 : "bg-[#f5854d] cursor-not-allowed"
-                }`}
-            >
-              Hoàn tất
-            </button>
+                }`} >
+                Hoàn tất
+              </button>
+            )
+
           )}
         </div>
       </form>
