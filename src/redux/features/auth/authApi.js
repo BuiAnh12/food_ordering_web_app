@@ -18,6 +18,19 @@ export const authApi = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+    registerStoreOwner: builder.mutation({
+      query: (data) => ({
+        url: "/auth/register/store-owner",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    checkStoreOwnerEmail: builder.query({
+      query: (email) => ({
+        url: `/auth/check-register-store-owner/${email}`,
+        method: "GET",
+      }),
+    }),
     loginUser: builder.mutation({
       query: (data) => ({
         url: "/auth/login?getRole=true",
@@ -137,19 +150,12 @@ export const authApi = apiSlice.injectEndpoints({
         body: passwordData,
       }),
     }),
-    registerStore: builder.mutation({
-      query: (data) => ({
-        url: "auth/register-store",
-        method: "POST",
-        credentials: "include",
-        body: data,
-      }),
-    })
   }),
 });
 
 export const {
   useLoginUserMutation,
+  useRegisterStoreOwnerMutation,
   useLoginWithGoogleMutation,
   useRegisterUserMutation,
   useLogoutUserMutation,
@@ -159,5 +165,5 @@ export const {
   useChangePasswordMutation,
   useResetPasswordMutation,
   useGetOwnStoreMutation,
-  useRegisterStoreMutation,
+  useLazyCheckStoreOwnerEmailQuery
 } = authApi;

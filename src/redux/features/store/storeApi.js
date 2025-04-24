@@ -18,7 +18,21 @@ export const storeApi = apiSlice.injectEndpoints({
         body: updates,
       }),
     }),
+    checkStoreName: builder.query({
+      query: (name) => ({
+        url: `/store/check-name/${name}`,
+        method: "GET",
+      }),
+    }),
+    registerStore: builder.mutation({
+      query: (data) => ({
+        url: "store/register",
+        method: "POST",
+        credentials: "include",
+        body: data,
+      }),
+    })
   }),
 });
 
-export const { useGetStoreInformationQuery, useUpdateStoreInformationMutation } = storeApi;
+export const { useGetStoreInformationQuery, useUpdateStoreInformationMutation, useCheckStoreNameQuery, useLazyCheckStoreNameQuery, useRegisterStoreMutation } = storeApi;

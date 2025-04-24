@@ -1,8 +1,6 @@
-"use client";
 import { configureStore } from "@reduxjs/toolkit";
 import { persistStore, persistReducer, FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER } from "redux-persist";
 import storage from "redux-persist/lib/storage";
-import { thunk } from "redux-thunk";
 import { combineReducers } from "@reduxjs/toolkit";
 import { apiSlice } from "./features/api/apiSlice";
 import userReducer from "./features/user/userSlice";
@@ -52,7 +50,7 @@ export const store = configureStore({
       serializableCheck: {
         ignoredActions: [FLUSH, REHYDRATE, PAUSE, PERSIST, PURGE, REGISTER],
       },
-    }).concat(thunk, apiSlice.middleware),
+    }).concat(apiSlice.middleware), // No need to add redux-thunk again
 });
 
 export const persistor = persistStore(store, null, () => {
