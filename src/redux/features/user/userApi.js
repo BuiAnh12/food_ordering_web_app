@@ -4,8 +4,8 @@ import { setCurrentUser } from "./userSlice";
 export const userApi = apiSlice.injectEndpoints({
   endpoints: (builder) => ({
     getCurrentUser: builder.query({
-      query: (id) => ({
-        url: `/user/${id}`,
+      query: (userId) => ({
+        url: `/user/${userId}`,
         method: "GET",
         credentials: "include",
       }),

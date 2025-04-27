@@ -1,37 +1,38 @@
 import { apiSlice } from "../api/apiSlice";
 
 export const storeApi = apiSlice.injectEndpoints({
+  overrideExisting: true,
   endpoints: (builder) => ({
-    getAllStore: builder.query({
-      query: ({ name, category, sort, limit, page }) => ({
-        url: `/store/`,
-        method: "GET",
-        params: { name, category, sort, limit, page },
-        credentials: "include",
-      }),
-      async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
-        try {
-          const result = await queryFulfilled;
-        } catch (error) {
-          console.error(error);
-        }
-      },
-    }),
     getStoreInformation: builder.query({
       query: (id) => ({
         url: `/store/${id}`,
         method: "GET",
         credentials: "include",
       }),
-      async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
-        try {
-          const result = await queryFulfilled;
-        } catch (error) {
-          console.error(error);
-        }
-      },
     }),
+    updateStoreInformation: builder.mutation({
+      query: ({ storeId, updates }) => ({
+        url: `/store/${storeId}`,
+        method: "PUT",
+        credentials: "include",
+        body: updates,
+      }),
+    }),
+    checkStoreName: builder.query({
+      query: (name) => ({
+        url: `/store/check-name/${name}`,
+        method: "GET",
+      }),
+    }),
+    registerStore: builder.mutation({
+      query: (data) => ({
+        url: "store/register",
+        method: "POST",
+        credentials: "include",
+        body: data,
+      }),
+    })
   }),
 });
 
-export const { useGetAllStoreQuery, useGetStoreInformationQuery } = storeApi;
+export const { useGetStoreInformationQuery, useUpdateStoreInformationMutation, useCheckStoreNameQuery, useLazyCheckStoreNameQuery, useRegisterStoreMutation } = storeApi;

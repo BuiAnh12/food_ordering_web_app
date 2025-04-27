@@ -18,6 +18,19 @@ export const authApi = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+    registerStoreOwner: builder.mutation({
+      query: (data) => ({
+        url: "/auth/register/store-owner",
+        method: "POST",
+        body: data,
+      }),
+    }),
+    checkStoreOwnerEmail: builder.query({
+      query: (email) => ({
+        url: `/auth/check-register-store-owner/${email}`,
+        method: "GET",
+      }),
+    }),
     loginUser: builder.mutation({
       query: (data) => ({
         url: "/auth/login?getRole=true",
@@ -32,7 +45,7 @@ export const authApi = apiSlice.injectEndpoints({
           localStorage.setItem("userId", JSON.stringify(userId));
           localStorage.setItem("token", JSON.stringify(data.token));
           console.log(jwt.decode(data.token))
-          localStorage.setItem("role", JSON.stringify(jwt.decode(data.token).role)) // haven't decode the jwt
+          localStorage.setItem("role", JSON.stringify(data.role))
           dispatch(userApi.endpoints.getCurrentUser.initiate(userId, { forceRefetch: true }));
         } catch (error) {
           console.error("Login error:", error);
@@ -90,6 +103,22 @@ export const authApi = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+    forgotPassword: builder.mutation({
+      query: (data) => ({
+        url: "/auth/forgot-password",
+        method: "POST",
+        body: data,
+        credentials: "include",
+      }),
+    }),
+    checkOTP: builder.mutation({
+      query: (data) => ({
+        url: `/auth/check-otp`,
+        method: "POST",
+        body: data,
+        credentials: "include",
+      }),
+    }),
     changePassword: builder.mutation({
       query: (data) => ({
         url: `/auth/change-password`,
@@ -113,11 +142,20 @@ export const authApi = apiSlice.injectEndpoints({
         credentials: "include",
       }),
     }),
+    changePassword: builder.mutation({
+      query: (passwordData) => ({
+        url: "/auth/change-password",
+        method: "PUT",
+        credentials: "include",
+        body: passwordData,
+      }),
+    }),
   }),
 });
 
 export const {
   useLoginUserMutation,
+  useRegisterStoreOwnerMutation,
   useLoginWithGoogleMutation,
   useRegisterUserMutation,
   useLogoutUserMutation,
@@ -126,5 +164,6 @@ export const {
   useCheckOTPMutation,
   useChangePasswordMutation,
   useResetPasswordMutation,
-  useGetOwnStoreMutation
+  useGetOwnStoreMutation,
+  useLazyCheckStoreOwnerEmailQuery
 } = authApi;

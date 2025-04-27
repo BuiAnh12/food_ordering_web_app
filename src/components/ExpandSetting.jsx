@@ -11,12 +11,10 @@ import PrinterSettings from "./tabs/setting/PrinterSettings";
 // Mapping section titles to components
 const sectionComponents = {
     "Thông tin cơ bản": BasicInfo,
-    "Thời gian hoạt động": OperatingHours,
     "Ảnh đại diện và Ảnh bìa": ProfileImages,
-    "Cài đặt máy in": PrinterSettings,
 };
 
-const ExpandableSettings = () => {
+const ExpandableSettings = ({store}) => {
     const [openTab, setOpenTab] = useState(null);
 
     // ✅ Toggle function
@@ -42,7 +40,7 @@ const ExpandableSettings = () => {
 
                             {openTab === index && (
                                 <div className="mt-2 bg-gray-50 p-3 rounded-md">
-                                    <SectionComponent />
+                                    <SectionComponent store={store}/>
                                 </div>
                             )}
                         </li>

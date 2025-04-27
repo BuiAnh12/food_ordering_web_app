@@ -8,7 +8,6 @@ import Header from "../../components/Header"
 import Tabs from "../../components/Tabs"
 import DishTab from "../../components/tabs/DishMenuTab"
 import ToppingTab from "../../components/tabs/ToppingMenuTab"
-
 const page = () => {
   const tabData = [
     { label: "Món ăn", component: <DishTab /> },
@@ -17,7 +16,7 @@ const page = () => {
   return (
     <>
 
-      <Header title="Thực đơn" />
+      <Header title="Thực đơn" goBack={true} />
       <div className='pt-[70px] pb-[10px] bg-gray-100'>
 
         {/* SEARCH BAR */}
@@ -55,7 +54,7 @@ const page = () => {
         </div>
         <Tabs
           tabs={tabData}
-          defaultActiveTab={0} 
+          defaultActiveTab={0}
           onTabChange={(index) => console.log("Active tab changed to:", index)}
         />
       </div>

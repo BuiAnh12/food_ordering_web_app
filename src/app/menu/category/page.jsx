@@ -2,55 +2,102 @@
 
 import NavBar from "../../../components/NavBar";
 import Image from "next/image";
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import Header from "../../../components/Header";
 import LabelWithIcon from "../../../components/LableWithIcon";
-import { DndContext, closestCenter } from "@dnd-kit/core";
+import Modal from "../../../components/Modal";
 import {
-    SortableContext,
-    verticalListSortingStrategy,
-    arrayMove,
-    useSortable,
-} from "@dnd-kit/sortable";
-import { CSS } from "@dnd-kit/utilities"; // Missing import
-import Modal from "../../../components/Modal"
+    useGetAllCategoriesQuery,
+    useCreateCategoryMutation,
+    useUpdateCategoryMutation,
+    useDeleteCategoryMutation,
+} from "../../../redux/features/category/categoryApi";
+import { useDispatch } from "react-redux";
 
 const Page = () => {
+    const dispatch = useDispatch();
+    const storeData = localStorage.getItem("store");
+    const storeId = JSON.parse(storeData)?._id;
+
+    const { data: categoryData, isLoading, error, refetch } = useGetAllCategoriesQuery({ storeId });
+    const [createCategory, { isLoading: isCreating }] = useCreateCategoryMutation();
+    const [updateCategory, { isLoading: isUpdating }] = useUpdateCategoryMutation();
+    const [deleteCategory, { isLoading: isDeleting }] = useDeleteCategoryMutation();
+
+    const [categories, setCategories] = useState([]);
     const [isModalOpen, setIsModalOpen] = useState(false);
-    const [addCategory, setAddCateogry] = useState("")
-    const [category, setCategory] = useState([
-        { id: 1, displayOrder: 1, title: "Cat1" },
-        { id: 2, displayOrder: 2, title: "Cat2" },
-        { id: 3, displayOrder: 3, title: "Cat3" },
-        { id: 4, displayOrder: 4, title: "Cat4" },
-        { id: 5, displayOrder: 5, title: "Cat5" },
-    ]);
+    const [isDeleteModalOpen, setIsDeleteModalOpen] = useState(false);
+    const [categoryName, setCategoryName] = useState("");
+    const [selectedCategory, setSelectedCategory] = useState(null);
 
-    const handleDragEnd = (event) => {
-        const { active, over } = event;
-        if (!over || active.id === over.id) return;
+    useEffect(() => {
+        refetch();
+    }, [refetch]);
 
-        setCategory((prevCategory) => {
-            const oldIndex = prevCategory.findIndex((item) => item.id === active.id);
-            const newIndex = prevCategory.findIndex((item) => item.id === over.id);
-            return arrayMove(prevCategory, oldIndex, newIndex).map((item, index) => ({
-                ...item,
-                displayOrder: index + 1,
-            }));
-        });
+    useEffect(() => {
+        if (categoryData?.data) {
+            setCategories(categoryData.data);
+        }
+    }, [categoryData]);
+
+    const handleCreateCategory = async (e) => {
+        e.preventDefault();
+        if (!categoryName.trim()) return;
+
+        try {
+            await createCategory({ storeId, name: categoryName }).unwrap();
+            setIsModalOpen(false);
+            setCategoryName("");
+            await refetch();
+        } catch (err) {
+            console.error("Failed to create category:", err);
+        }
     };
 
-    const handleSubmit = () => {
-        console.log("Submit the form")
-    }
+    const handleUpdateCategory = async () => {
+        if (!categoryName.trim() || !selectedCategory) return;
+
+        try {
+            await updateCategory({ categoryId: selectedCategory._id, name: categoryName }).unwrap();
+            setIsModalOpen(false);
+            setCategoryName("");
+            setSelectedCategory(null);
+            await refetch();
+        } catch (err) {
+            console.error("Failed to update category:", err);
+        }
+    };
+
+    const handleDeleteCategory = async () => {
+        if (!selectedCategory) return;
+
+        try {
+            await deleteCategory({ categoryId: selectedCategory._id }).unwrap();
+            setIsDeleteModalOpen(false);
+            setSelectedCategory(null);
+            await refetch();
+        } catch (err) {
+            console.error("Failed to delete category:", err);
+        }
+    };
 
     return (
         <>
-            <Modal open={isModalOpen} onClose={()=>{setIsModalOpen(false)}} onConfirm={handleSubmit} title="Thêm Danh Mục" confirmTitle="Lưu" closeTitle="Hủy">
-                <form onSubmit={handleSubmit}>
+            <Modal
+                open={isModalOpen}
+                onClose={() => {
+                    setIsModalOpen(false);
+                    setSelectedCategory(null);
+                }}
+                onConfirm={selectedCategory ? handleUpdateCategory : handleCreateCategory}
+                title={selectedCategory ? "Cập nhật danh mục" : "Thêm danh mục"}
+                confirmTitle={isCreating || isUpdating ? "Đang lưu..." : "Lưu"}
+                closeTitle="Hủy"
+            >
+                <form onSubmit={selectedCategory ? handleUpdateCategory : handleCreateCategory}>
                     <input
                         type="text"
-                        value={addCategory}
+                        value={categoryName}
                         onChange={(e) => setCategoryName(e.target.value)}
                         placeholder="Nhập tên danh mục"
                         className="w-full p-2 border rounded-md mb-4"
@@ -58,48 +105,54 @@ const Page = () => {
                     />
                 </form>
             </Modal>
+
+            <Modal
+                open={isDeleteModalOpen}
+                onClose={() => setIsDeleteModalOpen(false)}
+                onConfirm={handleDeleteCategory}
+                title="Xác nhận xóa"
+                confirmTitle={isDeleting ? "Đang xóa..." : "Xóa"}
+                closeTitle="Hủy"
+            >
+                <p>Bạn có chắc chắn muốn xóa danh mục này?</p>
+            </Modal>
+
             <Header title="Chỉnh sửa danh mục" goBack={true} />
             <div className="flex justify-between items-center border-b pb-2 mx-4 mt-24">
                 <LabelWithIcon title="Thêm" iconPath="/assets/plus.png" onClick={() => setIsModalOpen(true)} />
             </div>
-            <div className='pt-[10px] pb-[10px] bg-gray-100 mt-4 bg-gray-100'>
-
-                <DndContext collisionDetection={closestCenter} onDragEnd={handleDragEnd}>
-                    <SortableContext items={category.map((item) => item.id)} strategy={verticalListSortingStrategy}>
-                        <div className="bg-white rounded-md p-2 bg-gray-100">
-                            {category.map((item) => (
-                                <SortableItem key={item.id} item={item} />
-                            ))}
-                        </div>
-                    </SortableContext>
-                </DndContext>
+            <div className="pt-4 pb-4 bg-gray-100 mt-4 h-full">
+                {isLoading ? (
+                    <p className="text-center text-gray-500">Đang tải danh mục...</p>
+                ) : error ? (
+                    <p className="text-center text-red-500">Lỗi khi tải danh mục</p>
+                ) : (
+                    <div className="bg-white rounded-md p-2">
+                        {categories.map((item) => (
+                            <CategoryItem key={item._id} item={item} onEdit={() => {
+                                setSelectedCategory(item);
+                                setCategoryName(item.name);
+                                setIsModalOpen(true);
+                            }} onDelete={() => {
+                                setSelectedCategory(item);
+                                setIsDeleteModalOpen(true);
+                            }} />
+                        ))}
+                    </div>
+                )}
             </div>
-            <NavBar page='orders' />
+            <NavBar page="" />
         </>
     );
 };
 
-const SortableItem = ({ item }) => {
-    const { attributes, listeners, setNodeRef, transform, transition } = useSortable({ id: item.id });
-
-    const style = {
-        transform: CSS.Transform.toString(transform),
-        transition,
-    };
-
+const CategoryItem = ({ item, onEdit, onDelete }) => {
     return (
-        <div
-            ref={setNodeRef}
-            {...attributes}
-            {...listeners}
-            style={style}
-            className="flex items-center justify-between bg-white p-3 rounded-md shadow-md cursor-grab my-2"
-        >
-            <div className="flex items-center space-x-3">
-                <Image src="/assets/menu.png" alt="Drag" width={20} height={20} />
-                <div>
-                    <p className="font-semibold">{item.title}</p>
-                </div>
+        <div className="flex items-center justify-between bg-white p-3 rounded-md shadow-md my-2">
+            <p className="font-semibold">{item.name}</p>
+            <div className="flex space-x-2">
+                <button onClick={onEdit} className="text-blue-500">✏️</button>
+                <button onClick={onDelete} className="text-red-500">🗑️</button>
             </div>
         </div>
     );

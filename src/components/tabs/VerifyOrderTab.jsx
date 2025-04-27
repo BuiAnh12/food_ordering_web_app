@@ -3,15 +3,15 @@ import React, { useEffect, useState } from "react";
 import { useRouter } from "next/navigation";
 import Link from "next/link";
 import Dropdown from "../Dropdown";
-import DateRangePicker from "../DateRangePicker";
 import generateOrderNumber from "../../utils/generateOrderNumber"
 import ReactPaginate from "react-paginate";
 import { useGetAllOrdersQuery } from "../../redux/features/order/orderApi";
 import { ThreeDots } from 'react-loader-spinner'
 
-const OrderCard = ({ order }) => {
+const OrderCard = ({ order, orderIndex }) => {
   const [cartPrice, setCartPrice] = useState(0);
   const [cartQuantity, setCartQuantity] = useState(0);
+
   const calculateCartPrice = () => {
     const { totalPrice, totalQuantity } = order.items.reduce(
       (acc, item) => {
@@ -33,53 +33,44 @@ const OrderCard = ({ order }) => {
   };
 
   useEffect(() => {
-    const fetchCartPrice = async () => {
-      await calculateCartPrice();
-    };
-
-    fetchCartPrice();
+    calculateCartPrice();
   }, []);
-  return (<>
 
+  return (
     <div className="border rounded-lg shadow-md p-4 bg-white mb-4">
-      {/* Order Header */}
-      <Link href={`orders/${order._id}/verify`} passHref>
+      <Link href={`orders/${order._id}`} passHref>
         <div className="flex justify-between items-center mb-2">
           <div className="flex items-center">
             <div className="bg-[#fc6011] text-white font-bold text-lg w-10 h-10 flex items-center justify-center rounded-sm">
-              {/* {order._id} */}
-              01
+              {orderIndex}
             </div>
             <div className="ml-2 text-sm text-gray-700">
               <span className="font-bold text-[#fc6011] text-lg">#{generateOrderNumber(order._id)}</span>
-              {/* <p className="text-sm text-gray-400 text-light">Giao lúc {order.deliveryTime} ({order.remainingTime})</p> */}
             </div>
           </div>
-          {/* <span className="text-sm text-gray-600">{order.remainingTime}</span> */}
         </div>
 
-        {/* Order Details */}
         <div className="mb-3">
           <p className="text-sm font-medium text-gray-800">{order.user.name}</p>
-          <p className="text-sm text-gray-600">
-            {/* {order.status} */}
-            Đang tìm tài xế
-          </p>
+          <p className="text-sm text-gray-600">Đang tìm tài xế</p>
         </div>
       </Link>
-      {/* Footer */}
+
       <div className="flex justify-between items-center">
         <div className="text-sm text-gray-600">{cartQuantity} món</div>
-        {/* <div className="text-sm text-gray-600">{cartPrice.toFixed(0)}đ</div> */}
-        <button className="px-4 py-2 text-white bg-[#fc6011] rounded-sm hover:bg-[#e9550f]">
-          Thông báo tài xế
-        </button>
+        {order.status === "finished" ? (
+          <button className="px-4 py-2 text-white bg-gray-400 rounded-sm cursor-not-allowed" disabled>
+            Đã thông báo tài xế
+          </button>
+        ) : (
+          <button className="px-4 py-2 text-white bg-[#fc6011] rounded-sm hover:bg-[#e9550f]">
+            Thông báo tài xế
+          </button>
+        )}
       </div>
     </div>
-  </>
   );
 };
-
 
 const VerifyOrderTab = ({ storeId }) => {
   const [currentPage, setCurrentPage] = useState(1);
@@ -87,7 +78,7 @@ const VerifyOrderTab = ({ storeId }) => {
 
   const { data, error, isLoading } = useGetAllOrdersQuery({
     storeId,
-    status: "",
+    status: ["confirmed", "finished"],
     limit: ordersPerPage,
     page: currentPage,
   });
@@ -131,9 +122,52 @@ const VerifyOrderTab = ({ storeId }) => {
         onChange={handleDropdownChange}
       />
       {orders.map((order, index) => (
-        <OrderCard key={index} order={order} />
+        <OrderCard
+          order={order}
+          orderIndex={(index + (currentPage - 1) * ordersPerPage + 1).toString().padStart(2, "0")}
+        />
       ))}
+      <div className="flex items-center justify-center w-full h-max mt-10 mb-20">
+        <ReactPaginate
+          previousLabel={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M15 19l-7-7 7-7" />
+            </svg>
+          }
+          nextLabel={
+            <svg
+              xmlns="http://www.w3.org/2000/svg"
+              fill="none"
+              viewBox="0 0 24 24"
+              strokeWidth={2}
+              stroke="currentColor"
+              className="w-5 h-5"
+            >
+              <path strokeLinecap="round" strokeLinejoin="round" d="M9 5l7 7-7 7" />
+            </svg>
+          }
+          breakLabel={"..."}
+          pageCount={pageCount}
+          marginPagesDisplayed={2}
+          pageRangeDisplayed={3}
+          onPageChange={handlePageClick}
+          containerClassName={"pagination flex space-x-2"}
+          activeClassName={"bg-orange-500 text-white"}
+          pageClassName={"border px-3 py-1 rounded-lg cursor-pointer"}
+          previousClassName={"border px-3 py-1 rounded-lg cursor-pointer"}
+          nextClassName={"border px-3 py-1 rounded-lg cursor-pointer"}
+          disabledClassName={"opacity-50 cursor-not-allowed"}
+        />
+      </div>
     </div>
+
   );
 };
 
