@@ -25,8 +25,14 @@ const page = () => {
   useEffect(() => {
     const userId = localStorage.getItem("userId");
     const token = localStorage.getItem("token");
+    const localStore = localStorage.getItem("store") ? JSON.parse(localStorage.getItem("store")) : null;
     if (userId && token) {
-      router.push("/home");
+      if (localStore.isApproved === false || localStore.isApproved === null) {
+        router.push("/auth/verification-pending");
+      }
+      else {
+        router.push("/home");
+      }
     }
     else{
       setIsLogin(false);
@@ -34,32 +40,33 @@ const page = () => {
   },[])
 
   useEffect(() => {
-    if (loginSuccess) {
-      toast.success("Đăng nhập thành công!");
-      router.push("/home");
-    }
-
     if (loginError) {
       if ("data" in loginError) {
         const errorData = loginError;
         toast.error(errorData.data.message);
       }
-    }
-  }, [loginSuccess, loginError]);
-
-  useEffect(() => {
-    if (loginWithGoogleSuccess) {
-      toast.success("Đăng nhập thành công!");
-      router.push("/home");
-    }
-
-    if (loginWithGoogleError) {
       if ("data" in loginWithGoogleError) {
         const errorData = loginWithGoogleError;
         toast.error(errorData.data.message);
       }
     }
-  }, [loginWithGoogleSuccess, loginWithGoogleError]);
+  }, [loginError, loginWithGoogleError]);
+
+  useEffect(() => {
+    if (loginWithGoogleSuccess || loginSuccess) {
+      toast.success("Đăng nhập thành công!");
+      if (store.isApproved === false || store.isApproved === null) {
+        router.push("/auth/verification-pending");
+        localStorage.clear()
+      }
+      else {
+        router.push("/home");
+      }
+    }
+    else {
+      setIsLogin(false);
+    }
+  },[store])
 
   const schema = yup.object().shape({
     email: yup.string().email("Email không hợp lệ!").required("Vui lòng nhập Email!"),
@@ -75,6 +82,7 @@ const page = () => {
     onSubmit: async (values) => {
       await loginUser(values);
       const { data } = await getOwnStore().unwrap();
+      setStore(data);
       if (data) {
         localStorage.setItem("store", JSON.stringify(data));
       }
