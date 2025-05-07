@@ -1,6 +1,4 @@
 "use client";
-import Header from "../../../components/header/Header";
-import Heading from "../../../components/Heading";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -92,8 +90,8 @@ const page = () => {
 
   return (
     !isLogin ?
-    <div className='md:bg-[#f9f9f9] md:pt-[110px]'>
-      <div className='bg-[#fff] lg:w-[60%] md:w-[80%] md:mx-auto md:border md:border-[#a3a3a3a3] md:border-solid md:rounded-[10px] md:shadow-[rgba(0,0,0,0.24)_0px_3px_8px] md:overflow-hidden'>
+    <div className="min-h-screen flex justify-center items-start md:bg-[#f9f9f9] md:pt-[110px]">
+      <div className="bg-white w-full lg:w-[60%] md:w-[80%] md:border md:border-[#a3a3a3a3] md:rounded-[10px] md:shadow-[rgba(0,0,0,0.24)_0px_3px_8px] md:overflow-hidden mt-[30px]">
         <div className='flex flex-col items-center justify-between py-[50px] h-screen md:h-full'>
           <div className='flex flex-col items-center w-full'>
             <h3 className='text-[#4A4B4D] text-[30px] font-bold pb-[20px]'>Đăng nhập</h3>

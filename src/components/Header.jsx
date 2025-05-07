@@ -34,7 +34,7 @@ const Header = ({ title, goBack }) => {
                 {/* Icons Section */}
                 <div className="flex items-center space-x-7">
                     {/* Notification Icon */}
-                    <Link href="#" aria-label="Notifications">
+                    <Link href="/notifications" aria-label="Notifications">
                         <Image src="/assets/notification.png" alt="Notification Icon" width={24} height={24} className="cursor-pointer" />
                     </Link>
 
