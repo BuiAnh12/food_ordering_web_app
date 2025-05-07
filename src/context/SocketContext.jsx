@@ -13,16 +13,16 @@ export const SocketProvider = ({ children }) => {
 
   const userState = useSelector((state) => state?.user);
   const storeId  = localStorage.getItem("storeId") || null;
-  const { currentUser } = userState;
 
   useEffect(() => {
-    if (!currentUser) return;
+    const userId = JSON.parse(localStorage.getItem("userId"))
+    if (!userId) return;
 
     const newSocket = io(ENDPOINT, { transports: ["websocket"] });
     setSocket(newSocket);
 
     // Đăng ký userId với server
-    newSocket.emit("registerUser", currentUser._id);
+    newSocket.emit("registerUser", userId);
     newSocket.emit("joinStoreRoom", storeId);
     console.log("Socket connected");
 

@@ -20,22 +20,38 @@ const page = () => {
   const [loginWithGoogle, { isSuccess: loginWithGoogleSuccess, error: loginWithGoogleError }] =
     useLoginWithGoogleMutation();
 
-  useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    const token = localStorage.getItem("token");
-    const localStore = localStorage.getItem("store") ? JSON.parse(localStorage.getItem("store")) : null;
-    if (userId && token) {
-      if (localStore.isApproved === false || localStore.isApproved === null) {
-        router.push("/auth/verification-pending");
-      }
-      else {
-        router.push("/home");
-      }
-    }
-    else{
-      setIsLogin(false);
-    }
-  },[])
+    useEffect(() => {
+      const checkAuthAndStore = async () => {
+        try {
+          const userId = localStorage.getItem("userId");
+          const token = localStorage.getItem("token");
+          let localStore = localStorage.getItem("store");
+  
+          if (!localStore) {
+            const { data } = await getOwnStore().unwrap();
+            localStore = data;
+            localStorage.setItem("store", JSON.stringify(data));
+          } else {
+            localStore = JSON.parse(localStore);
+          }
+  
+          if (userId && token) {
+            if (!localStore.isApproved) {
+              router.push("/auth/verification-pending");
+            } else {
+              router.push("/home");
+            }
+          } else {
+            setIsLogin(false);
+          }
+        } catch (error) {
+          console.error("Error fetching store:", error);
+          setIsLogin(false);
+        }
+      };
+  
+      checkAuthAndStore();
+    }, [])
 
   useEffect(() => {
     if (loginError) {

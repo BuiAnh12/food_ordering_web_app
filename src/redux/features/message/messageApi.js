@@ -10,13 +10,6 @@ export const messageApi = apiSlice.injectEndpoints({
         body: data,
         credentials: "include",
       }),
-      async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
-        try {
-          const result = await queryFulfilled;
-        } catch (error) {
-          console.error(error);
-        }
-      },
     }),
     getAllMessages: builder.query({
       query: (id) => ({
@@ -24,6 +17,9 @@ export const messageApi = apiSlice.injectEndpoints({
         method: "GET",
         credentials: "include",
       }),
+      refetchOnFocus: true,
+      refetchOnReconnect: true,
+      refetchOnMountOrArgChange: true,
     }),
     deleteMessage: builder.mutation({
       query: (id) => ({
@@ -46,4 +42,8 @@ export const messageApi = apiSlice.injectEndpoints({
   }),
 });
 
-export const { useSendMessageMutation, useGetAllMessagesQuery, useDeleteMessageMutation } = messageApi;
+export const {
+  useSendMessageMutation,
+  useGetAllMessagesQuery,
+  useDeleteMessageMutation,
+} = messageApi;
