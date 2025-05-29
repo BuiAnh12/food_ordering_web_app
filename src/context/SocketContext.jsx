@@ -3,7 +3,7 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 
-const ENDPOINT = process.env.NEXT_PUBLIC_SERVER_URI || "";
+const ENDPOINT = process.env.NEXT_PUBLIC_WS_URL || "";
 const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {

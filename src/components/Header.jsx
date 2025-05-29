@@ -52,8 +52,14 @@ const Header = ({ title, goBack }) => {
                             <DropdownMenuItem
                                 className="p-2 hover:bg-gray-100 cursor-pointer text-red-500"
                                 onClick={async () => {
-                                    await logoutUser()
-                                    router.push("auth/login")
+                                    try {
+                                        await logoutUser()
+                                    }
+                                    catch (error) {
+                                        console.log(error)
+                                    }finally{
+                                        router.push("auth/login")
+                                    }
                                 }}
                             >
                                 Logout

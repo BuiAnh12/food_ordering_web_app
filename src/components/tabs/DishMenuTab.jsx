@@ -11,7 +11,7 @@ import { CSS } from "@dnd-kit/utilities";
 import LabelWithIcon from "../../components/LableWithIcon";
 import { useRouter } from "next/navigation";
 import Image from "next/image";
-import { useGetAllDishQuery } from "../../redux/features/dish/dishApi"
+import { useGetAllDishQuery, useToggleSaleStatusMutation } from "../../redux/features/dish/dishApi"
 import { transformToMenuFormat, transformToApiFormat } from "../../utils/dishes"
 
 const DishTab = () => {
@@ -20,6 +20,8 @@ const DishTab = () => {
     const storeData = localStorage.getItem("store");
     const storeId = JSON.parse(storeData)._id;
     const { data, isLoading, error } = useGetAllDishQuery(storeId)
+    const [toggleSaleStatus, { isLoading: toggleLoading }] = useToggleSaleStatusMutation();
+
 
     const [menu, setMenu] = useState([
         {
@@ -57,18 +59,30 @@ const DishTab = () => {
     if (error) return <p>Error loading order details</p>;
 
 
-    // ✅ Fix: Correctly update `menu` state instead of using `setItems`
-    const toggleItemEnabled = (id) => {
-        setMenu((prevMenu) =>
-            prevMenu.map((section) => ({
-                ...section,
-                items: section.items.map((item) =>
-                    item.id === id ? { ...item, enabled: !item.enabled } : item
-                ),
-            }))
-        );
+    const toggleItemEnabled = async (id) => {
+        try {
+            await toggleSaleStatus({ dishId: id }).unwrap(); // Call API to toggle
+    
+            // Local UI update only if successful
+            setMenu((prevMenu) =>
+                prevMenu.map((section) => ({
+                    ...section,
+                    items: section.items.map((item) =>
+                        item.id === id
+                            ? {
+                                  ...item,
+                                  saleStatus:
+                                      item.saleStatus === "AVAILABLE" ? "OUT_OF_STOCK" : "AVAILABLE",
+                              }
+                            : item
+                    ),
+                }))
+            );
+        } catch (error) {
+            console.error("Failed to toggle sale status", error);
+            // Optionally show a toast or error message
+        }
     };
-
     // Handle drag end
     const handleDragEnd = (event) => {
         const { active, over } = event;
@@ -154,7 +168,8 @@ const SortableItem = ({ item, changePos, router, toggleItemEnabled }) => {
                 <input
                     type="checkbox"
                     className="sr-only peer"
-                    checked={item.enabled}
+                    checked={item.saleStatus === "AVAILABLE"}
+                    // disabled={toggleLoading}
                     onChange={() => toggleItemEnabled(item.id)}
                 />
                 <div className="relative w-11 h-6 bg-gray-200 rounded-full peer dark:bg-gray-700 peer-focus:ring-4 peer-focus:ring-green-300 dark:peer-focus:ring-green-800 peer-checked:after:translate-x-full rtl:peer-checked:after:-translate-x-full peer-checked:after:border-white after:content-[''] after:absolute after:top-0.5 after:start-[2px] after:bg-white after:border-gray-300 after:border after:rounded-full after:h-5 after:w-5 after:transition-all dark:border-gray-600 peer-checked:bg-green-600 dark:peer-checked:bg-green-600"></div>

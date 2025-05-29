@@ -4,7 +4,7 @@ import React, { useState } from "react";
 import { useRouter } from "next/navigation";
 import LabelWithIcon from "../../components/LableWithIcon";
 import Modal from "../Modal";
-import { useGetAllToppingQuery } from "../../redux/features/topping/toppingApi"; // Import API query hook
+import { useGetAllToppingQuery,  useAddToppingGroupOnlyMutation } from "../../redux/features/topping/toppingApi"; // Import API query hook
 
 const ToppingMenuTab = () => {
     const router = useRouter();
@@ -12,7 +12,7 @@ const ToppingMenuTab = () => {
     const storeId = JSON.parse(storeData)._id;
     // Fetch topping groups from API
     const { data, error, isLoading } = useGetAllToppingQuery({ storeId, limit: 10, page: 1 });
-
+    const [addToppingGroup] = useAddToppingGroupOnlyMutation();
     // Extract actual topping groups array
     const toppingGroups = data?.data || [];
 
@@ -21,19 +21,19 @@ const ToppingMenuTab = () => {
     const [isModalOpen, setIsModalOpen] = useState(false);
     const [newGroupName, setNewGroupName] = useState("");
 
-    const handleAddGroup = () => {
+    const handleAddGroup = async () => {
         if (!newGroupName.trim()) return; // Prevent empty names
-
-        const newGroup = {
-            _id: Date.now().toString(), // Generate a temporary unique ID
-            name: newGroupName,
-            toppings: [],
-        };
-
-        setNewGroups([...newGroups, newGroup]); // Add to local state
-        setNewGroupName("");
-        setIsModalOpen(false);
+    
+        try {
+            const addedGroup = await addToppingGroup({ storeId: storeId, name: newGroupName }).unwrap();
+            setNewGroups([...newGroups, addedGroup]);
+            setNewGroupName("");
+            setIsModalOpen(false);
+        } catch (error) {
+            console.error("Failed to add topping group:", error);
+        }
     };
+
 
     if (isLoading) return <p className="p-4">Loading toppings...</p>;
     if (error) return <p className="p-4 text-red-500">Error loading toppings!</p>;

@@ -9,7 +9,7 @@ export const categoryApi = apiSlice.injectEndpoints({
         if (page) params.append("page", page);
 
         return {
-          url: `store/${storeId}/category?${params.toString()}`,
+          url: `category/store/${storeId}/category?${params.toString()}`,
           method: "GET",
           credentials: "include",
         };
@@ -20,7 +20,7 @@ export const categoryApi = apiSlice.injectEndpoints({
 
     createCategory: builder.mutation({
       query: ({ storeId, name }) => ({
-        url: `store/${storeId}/category/add`,
+        url: `category/store/${storeId}/add`,
         method: "POST",
         body: { name },
         credentials: "include",
@@ -29,7 +29,7 @@ export const categoryApi = apiSlice.injectEndpoints({
 
     updateCategory: builder.mutation({
       query: ({ categoryId, name }) => ({
-        url: `store/category/${categoryId}`,
+        url: `category/${categoryId}`,
         method: "PUT",
         body: { name },
         credentials: "include",
@@ -38,7 +38,7 @@ export const categoryApi = apiSlice.injectEndpoints({
 
     deleteCategory: builder.mutation({
       query: ({ categoryId }) => ({
-        url: `store/category/${categoryId}`,
+        url: `category/${categoryId}`,
         method: "DELETE",
         credentials: "include",
       }),

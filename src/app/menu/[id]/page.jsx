@@ -30,7 +30,7 @@ const Page = () => {
 
     const [image, setImage] = useState(dish?.image?.url || null);
     const [selectedToppings, setSelectedToppings] = useState(new Set(dish?.toppingGroups || []));
-    const [selectedCategory, setSelectedCategory] = useState(dish?.category || "");
+    const [selectedCategory, setSelectedCategory] = useState(dish?.category?._id || "");
     const [formData, setFormData] = useState({
         name: "",
         price: "",
@@ -40,6 +40,7 @@ const Page = () => {
 
     useEffect(() => {
         if (dish) {
+            console.log(dish)
             setImage(dish.image?.url || null);
             setFormData({
                 name: dish.name || "",
@@ -47,7 +48,8 @@ const Page = () => {
                 description: dish.description || "",
             });
             setSelectedToppings(new Set(dish.toppingGroups || []));
-            setSelectedCategory(dish.category || "");
+            // setSelectedCategory(dish?.category.name || "");
+            setSelectedCategory(dish?.category._id || "");
         }
     }, [dish]);
 
@@ -65,6 +67,10 @@ const Page = () => {
             [name]: value,
         }));
     };
+
+    useEffect(() => {
+        console.log(selectedCategory)
+    },[selectedCategory])
 
     const handleToppingToggle = (toppingId) => {
         setSelectedToppings((prev) => {

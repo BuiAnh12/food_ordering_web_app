@@ -14,7 +14,7 @@ export const orderApi = apiSlice.injectEndpoints({
         if (page) params.append("page", page);
 
         return {
-          url: `store/${storeId}/order?${params.toString()}`, // Include storeId and query params
+          url: `order/store/${storeId}?${params.toString()}`, // Include storeId and query params
           method: "GET",
           credentials: "include",
         };
@@ -26,7 +26,7 @@ export const orderApi = apiSlice.injectEndpoints({
     getOrder: builder.query({
       query: ({ orderId }) => {
         return {
-          url: `store/order/${orderId}`, // Include storeId and query params
+          url: `order/${orderId}`, // Include storeId and query params
           method: "GET",
           credentials: "include",
         };
@@ -37,7 +37,7 @@ export const orderApi = apiSlice.injectEndpoints({
     }),
     updateOrder: builder.mutation({
       query: ({ orderId, updatedData }) => ({
-        url: `store/order/${orderId}`,
+        url: `order/${orderId}`,
         method: "PUT",
         credentials: "include",
         body: updatedData,
