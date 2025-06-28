@@ -65,7 +65,7 @@ const StaffDetailPage = () => {
 
   const handleSave = async () => {
     const updatedData = {
-      staff_id: id,
+      _id: id,
       name: staff.name,
       email: staff.email,
       phonenumber: staff.phonenumber,

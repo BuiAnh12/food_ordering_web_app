@@ -49,7 +49,7 @@ const Page = () => {
             });
             setSelectedToppings(new Set(dish.toppingGroups || []));
             // setSelectedCategory(dish?.category.name || "");
-            setSelectedCategory(dish?.category._id || "");
+            setSelectedCategory(dish?.category?._id || "");
         }
     }, [dish]);
 

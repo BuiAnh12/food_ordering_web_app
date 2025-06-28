@@ -131,6 +131,7 @@ const StoreRegistrationPage = () => {
         nextStep();
       } catch (err) {
         toast.error(err);
+        console.error("Account registration error:", err);
       }
 
       console.log("Form Submitted");

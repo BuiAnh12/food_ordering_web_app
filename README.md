@@ -34,3 +34,12 @@ You can check out [the Next.js GitHub repository](https://github.com/vercel/next
 The easiest way to deploy your Next.js app is to use the [Vercel Platform](https://vercel.com/new?utm_medium=default-template&filter=next.js&utm_source=create-next-app&utm_campaign=create-next-app-readme) from the creators of Next.js.
 
 Check out our [Next.js deployment documentation](https://nextjs.org/docs/app/building-your-application/deploying) for more details.
+
+
+## Related repository
+- [Mobile application for store side](https://github.com/BuiAnh12/food_ordering_app) - A mobile version app for store management
+- [SOA Backend](https://github.com/NND24/food-ordering-server) - SOA joint server
+- [Mobile application for client side](https://nextjs.org/docs) - A mobile version app for client side
+- [Web application for client side](https://github.com/NND24/food-ordering-app) - A web version app for client side
+- [Mobile application for shipper](https://github.com/bppham/Android-Delivery-Food) - A mobile version app for shipper side
+- [Web application for shipper](https://github.com/bppham/food-ordering-app-shipper) - A web version app for shipper side
