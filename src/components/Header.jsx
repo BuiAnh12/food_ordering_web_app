@@ -34,7 +34,7 @@ const Header = ({ title, goBack }) => {
                 {/* Icons Section */}
                 <div className="flex items-center space-x-7">
                     {/* Notification Icon */}
-                    <Link href="#" aria-label="Notifications">
+                    <Link href="/notifications" aria-label="Notifications">
                         <Image src="/assets/notification.png" alt="Notification Icon" width={24} height={24} className="cursor-pointer" />
                     </Link>
 
@@ -52,8 +52,14 @@ const Header = ({ title, goBack }) => {
                             <DropdownMenuItem
                                 className="p-2 hover:bg-gray-100 cursor-pointer text-red-500"
                                 onClick={async () => {
-                                    await logoutUser()
-                                    router.push("auth/login")
+                                    try {
+                                        await logoutUser()
+                                    }
+                                    catch (error) {
+                                        console.log(error)
+                                    }finally{
+                                        router.push("auth/login")
+                                    }
                                 }}
                             >
                                 Logout

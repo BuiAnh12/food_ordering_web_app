@@ -75,7 +75,7 @@ export const authApi = apiSlice.injectEndpoints({
     logoutUser: builder.mutation({
       query: () => ({
         url: "/auth/logout",
-        method: "POST",
+        method: "GET",
         credentials: "include",
       }),
       async onQueryStarted(_arg, { queryFulfilled, dispatch }) {
@@ -93,6 +93,17 @@ export const authApi = apiSlice.injectEndpoints({
           localStorage.removeItem("role")
         } catch (error) {
           console.error("Logout error:", error);
+          await queryFulfilled;
+          dispatch(resetUserState());
+          dispatch(resetUploadState());
+          dispatch(resetNotificationState());
+          dispatch(resetMessageState());
+          dispatch(resetChatState());
+          dispatch(resetLocationState());
+          
+          localStorage.removeItem("userId");
+          localStorage.removeItem("token");
+          localStorage.removeItem("role")
         }
       },
     }),

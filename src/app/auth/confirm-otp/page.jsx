@@ -1,5 +1,4 @@
 "use client";
-import Header from "../../../components/header/Header";
 import Heading from "../../../components/Heading";
 import Image from "next/image";
 import React, { useEffect, useState } from "react";

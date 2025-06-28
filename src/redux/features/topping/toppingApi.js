@@ -9,7 +9,7 @@ export const toppingApi = apiSlice.injectEndpoints({
         if (page) params.append("page", page);
 
         return {
-          url: `store/${storeId}/topping?${params.toString()}`, // Fix lỗi template string
+          url: `topping/store/${storeId}?${params.toString()}`, // Fix lỗi template string
           method: "GET",
           credentials: "include",
         };
@@ -21,7 +21,7 @@ export const toppingApi = apiSlice.injectEndpoints({
     getTopping: builder.query({
       query: ({ groupId }) => {
         return {
-          url: `store/topping-group/${groupId}`, // Fix lỗi template string
+          url: `topping/topping-group/${groupId}`, // Fix lỗi template string
           method: "GET",
           credentials: "include",
         };
@@ -32,23 +32,35 @@ export const toppingApi = apiSlice.injectEndpoints({
 
     addToppingToGroup: builder.mutation({
       query: ({ groupId, name, price }) => ({
-        url: `store/topping-group/${groupId}/topping`,
+        url: `topping/topping-group/${groupId}/topping`,
         method: "POST",
         body: { name, price },
         credentials: "include",
       }),
     }),
 
+    addToppingGroupOnly: builder.mutation({
+      query: ({ storeId, name }) => ({
+        url: `topping/store/${storeId}/topping-group/add`,
+        method: "POST",
+        body: {name},
+        credentials: "include",
+        headers: {
+          "Content-Type": "application/json", // Important!
+        },
+      }),
+    }),
+    
     removeToppingFromGroup: builder.mutation({
       query: ({ groupId, toppingId }) => ({
-        url: `store/topping-group/${groupId}/topping/${toppingId}`,
+        url: `topping/topping-group/${groupId}/topping/${toppingId}`,
         method: "DELETE",
         credentials: "include",
       }),
     }),
     updateTopping: builder.mutation({
       query: ({ groupId, toppingId, name, price }) => ({
-        url: `store/topping-group/${groupId}/topping/${toppingId}`,
+        url: `topping/topping-group/${groupId}/topping/${toppingId}`,
         method: "PUT",
         body: { name, price },
         credentials: "include",
@@ -63,4 +75,5 @@ export const {
   useAddToppingToGroupMutation,
   useRemoveToppingFromGroupMutation,
   useUpdateToppingMutation,
+  useAddToppingGroupOnlyMutation,
 } = toppingApi;

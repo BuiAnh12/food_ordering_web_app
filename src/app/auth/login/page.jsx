@@ -1,6 +1,4 @@
 "use client";
-import Header from "../../../components/header/Header";
-import Heading from "../../../components/Heading";
 import Image from "next/image";
 import Link from "next/link";
 import { useRouter } from "next/navigation";
@@ -22,44 +20,67 @@ const page = () => {
   const [loginWithGoogle, { isSuccess: loginWithGoogleSuccess, error: loginWithGoogleError }] =
     useLoginWithGoogleMutation();
 
-  useEffect(() => {
-    const userId = localStorage.getItem("userId");
-    const token = localStorage.getItem("token");
-    if (userId && token) {
-      router.push("/home");
-    }
-    else{
-      setIsLogin(false);
-    }
-  },[])
+    useEffect(() => {
+      const checkAuthAndStore = async () => {
+        try {
+          const userId = localStorage.getItem("userId");
+          const token = localStorage.getItem("token");
+          let localStore = localStorage.getItem("store");
+  
+          if (!localStore) {
+            const { data } = await getOwnStore().unwrap();
+            localStore = data;
+            localStorage.setItem("store", JSON.stringify(data));
+          } else {
+            localStore = JSON.parse(localStore);
+          }
+  
+          if (userId && token) {
+            if (!localStore.isApproved) {
+              router.push("/auth/verification-pending");
+            } else {
+              router.push("/home");
+            }
+          } else {
+            setIsLogin(false);
+          }
+        } catch (error) {
+          console.error("Error fetching store:", error);
+          setIsLogin(false);
+        }
+      };
+  
+      checkAuthAndStore();
+    }, [])
 
   useEffect(() => {
-    if (loginSuccess) {
-      toast.success("Đăng nhập thành công!");
-      router.push("/home");
-    }
-
     if (loginError) {
       if ("data" in loginError) {
         const errorData = loginError;
         toast.error(errorData.data.message);
       }
-    }
-  }, [loginSuccess, loginError]);
-
-  useEffect(() => {
-    if (loginWithGoogleSuccess) {
-      toast.success("Đăng nhập thành công!");
-      router.push("/home");
-    }
-
-    if (loginWithGoogleError) {
       if ("data" in loginWithGoogleError) {
         const errorData = loginWithGoogleError;
         toast.error(errorData.data.message);
       }
     }
-  }, [loginWithGoogleSuccess, loginWithGoogleError]);
+  }, [loginError, loginWithGoogleError]);
+
+  useEffect(() => {
+    if (loginWithGoogleSuccess || loginSuccess) {
+      toast.success("Đăng nhập thành công!");
+      if (store.isApproved === false || store.isApproved === null) {
+        router.push("/auth/verification-pending");
+        localStorage.clear()
+      }
+      else {
+        router.push("/home");
+      }
+    }
+    else {
+      setIsLogin(false);
+    }
+  },[store])
 
   const schema = yup.object().shape({
     email: yup.string().email("Email không hợp lệ!").required("Vui lòng nhập Email!"),
@@ -75,6 +96,7 @@ const page = () => {
     onSubmit: async (values) => {
       await loginUser(values);
       const { data } = await getOwnStore().unwrap();
+      setStore(data);
       if (data) {
         localStorage.setItem("store", JSON.stringify(data));
       }
@@ -84,8 +106,8 @@ const page = () => {
 
   return (
     !isLogin ?
-    <div className='md:bg-[#f9f9f9] md:pt-[110px]'>
-      <div className='bg-[#fff] lg:w-[60%] md:w-[80%] md:mx-auto md:border md:border-[#a3a3a3a3] md:border-solid md:rounded-[10px] md:shadow-[rgba(0,0,0,0.24)_0px_3px_8px] md:overflow-hidden'>
+    <div className="min-h-screen flex justify-center items-start md:bg-[#f9f9f9] md:pt-[110px]">
+      <div className="bg-white w-full lg:w-[60%] md:w-[80%] md:border md:border-[#a3a3a3a3] md:rounded-[10px] md:shadow-[rgba(0,0,0,0.24)_0px_3px_8px] md:overflow-hidden mt-[30px]">
         <div className='flex flex-col items-center justify-between py-[50px] h-screen md:h-full'>
           <div className='flex flex-col items-center w-full'>
             <h3 className='text-[#4A4B4D] text-[30px] font-bold pb-[20px]'>Đăng nhập</h3>

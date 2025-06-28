@@ -3,32 +3,40 @@ import { createContext, useContext, useEffect, useState } from "react";
 import { useSelector } from "react-redux";
 import { io } from "socket.io-client";
 
-const ENDPOINT = process.env.NEXT_PUBLIC_SERVER_URI || "";
+const ENDPOINT = process.env.NEXT_PUBLIC_WS_URL || "";
 const SocketContext = createContext();
 
 export const SocketProvider = ({ children }) => {
   const [socket, setSocket] = useState(null);
   const [notifications, setNotifications] = useState([]);
+  const [message, setMessage] = useState([]);
 
   const userState = useSelector((state) => state?.user);
-  const { currentUser } = userState;
+  const storeId  = localStorage.getItem("storeId") || null;
 
   useEffect(() => {
-    if (!currentUser) return;
+    const userId = JSON.parse(localStorage.getItem("userId"))
+    if (!userId) return;
 
     const newSocket = io(ENDPOINT, { transports: ["websocket"] });
     setSocket(newSocket);
 
     // Đăng ký userId với server
-    newSocket.emit("registerUser", currentUser._id);
+    newSocket.emit("registerUser", userId);
+    newSocket.emit("joinStoreRoom", storeId);
+    console.log("Socket connected");
 
     // Nhận danh sách thông báo cũ khi kết nối
     newSocket.on("getAllNotifications", (allNotifications) => {
       setNotifications(allNotifications);
     });
 
+    newSocket.on("getStoreNotifications", (newNotification) => {
+      setNotifications((prev) => [...prev, newNotification]);
+    });
+
     // Nhận thông báo mới
-    newSocket.on("newNotification", (newNotification) => {
+    newSocket.on("newOrderNotification", (newNotification) => {
       setNotifications((prev) => [...prev, newNotification]);
     });
 

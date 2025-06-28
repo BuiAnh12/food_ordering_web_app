@@ -5,7 +5,7 @@ export const foodTypeApi = apiSlice.injectEndpoints({
         getAllFoodType: builder.query({
             query: () => {
                 return {
-                    url: `/foodType`,
+                    url: `/foodType/`,
                     method: "GET",
                 };
             },

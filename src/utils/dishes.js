@@ -11,7 +11,7 @@ export const transformToMenuFormat = (apiData) => {
             id: item._id,
             name: item.name,
             price: `${item.price.toLocaleString()}đ`,
-            enabled: true,
+            saleStatus: item.stockStatus,
             image: item.image.url
         });
     });
